@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+
+    <item
+        android:id="@+id/navigation_alarm"
+        android:icon="@drawable/baseline_alarm_on_24"
+        android:title="@string/alert" />
+
+    <item
+        android:id="@+id/navigation_calendar"
+        android:icon="@drawable/baseline_calendar_today_24"
+        android:title="@string/calendar" />
+
+    <item
+        android:id="@+id/navigation_memo"
+        android:icon="@drawable/baseline_mode_edit_outline_24"
+        android:title="@string/memo" />
+
+</menu>
