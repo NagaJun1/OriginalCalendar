@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.example.originalcalendar.Content.AlarmEdit;
 import com.example.originalcalendar.Content.Common;
@@ -104,16 +103,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * カレンダークリック時のイベントを設定
+     * カレンダー内の日付押下時のイベントを設定
      */
     private void setCalendarEvent(){
         calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView c, int year, int month, int day) {
                 String strDate = Common.getStrDate(year,month,day);
-
-                // 本来はメモ編集画面に飛ぶ
-//                System.out.println(strDate);
 
                 // メモ編集画面の表示
                 MemoEdit.setMemoEditor(centerLayout, strDate, null, 0);

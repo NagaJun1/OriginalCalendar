@@ -43,4 +43,19 @@ public class Common {
          }
         return 0;
     }
+
+    /**
+     * 保存されている情報から、引数とマッチする情報を取得
+     * @param date 年月日
+     * @param time 時刻
+     * @param dayOfWeek 曜日
+     * @return 取得された情報（文字列）
+     */
+    public static String getTextInRecord(String date, String time, int dayOfWeek) {
+        // 曜日が未指定の場合は、日付から曜日を取得
+        if (dayOfWeek == 0) {
+            dayOfWeek = getDayOfWeek(date);
+        }
+        return "処理が未設定です。\n"+ date +"\n"+time+"\n"+DAY_OF_WEEK[dayOfWeek];
+    }
 }
