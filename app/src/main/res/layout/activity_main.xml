@@ -8,6 +8,14 @@
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize">
 
+    <LinearLayout
+        android:id="@+id/center_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        />
+
     <include layout="@layout/original_calender"
         android:id="@+id/calender"/>
 
