@@ -1,4 +1,4 @@
-package com.example.originalcalendar.Content;
+package com.example.originalcalendar.ChildrenContent;
 
 import android.content.Context;
 import android.widget.EditText;
