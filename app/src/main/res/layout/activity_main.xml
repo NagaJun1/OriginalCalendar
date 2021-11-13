@@ -15,7 +15,7 @@
         android:visibility="invisible"
         />
 
-    <include layout="@layout/original_calender"
+    <include layout="@layout/child_calender"
         android:id="@+id/calender"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

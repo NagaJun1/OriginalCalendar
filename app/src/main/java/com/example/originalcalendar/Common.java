@@ -1,4 +1,4 @@
-package com.example.originalcalendar.ChildrenContent;
+package com.example.originalcalendar;
 
 import java.util.Calendar;
 
@@ -9,12 +9,27 @@ public class Common {
     public static final String COMMA = ",";
 
     /**
-     * 曜日の日本語配列
+     * 一週間分の曜日の日本語配列
      */
-    public static final String[] DAY_OF_WEEK = {"error","日","月","火","水","木","金","土"};
+    public static final String[] ONE_WEEK = {"error","日","月","火","水","木","金","土"};
 
     /**
-     * 日付を8桁の文字列に修正
+     * Intent に年月日を設定、取り出すためのキー
+     */
+    public static final String DATE = "DATE";
+
+    /**
+     * Intent に時刻を設定、取り出すためのキー
+     */
+    public static final String TIME = "TIME";
+
+    /**
+     * Intent に曜日識別用の数字を設定、取り出すためのキー
+     */
+    public static final String DAY_OF_WEEK = "DAY_OF_WEEK";
+
+    /**
+     * 日付を規定フォーマットの文字列に修正
      * @return yyyy,mm,dd のフォーマットの文字列
      */
     public static String getStrDate(int year,int month,int day){
@@ -56,6 +71,6 @@ public class Common {
         if (dayOfWeek == 0) {
             dayOfWeek = getDayOfWeek(date);
         }
-        return "処理が未設定です。\n"+ date +"\n"+time+"\n"+DAY_OF_WEEK[dayOfWeek];
+        return "処理が未設定です。\n"+ date +"\n"+time+"\n"+ ONE_WEEK[dayOfWeek];
     }
 }

@@ -1,5 +1,6 @@
 package com.example.originalcalendar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CalendarView;
@@ -7,8 +8,8 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.ChildrenContent.Common;
-import com.example.originalcalendar.ChildrenContent.MemoEdit;
+import com.example.originalcalendar.ChildrenContent.AlarmList;
+import com.example.originalcalendar.ChildrenContent.MemoList;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -68,15 +69,32 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()){
                 case R.id.navigation_alarm:
                     // アラーム一覧を表示
-                    break;
+                    setAlarmList();
+                    return false;
                 case R.id.navigation_memo:
                     // メモ一覧を表示
-                    break;
+                    setMemoList();
+                    return false;
                 default:
-                    break;
+                    return false;
             }
-            return false;
         });
+    }
+
+    /**
+     * アラーム一覧の表示
+     */
+    private void setAlarmList(){
+        setCalendarVisible(false);
+        AlarmList.setAlarmList(centerLayout);
+    }
+
+    /**
+     * メモ一覧の表示
+     */
+    private void setMemoList(){
+        setCalendarVisible(false);
+        MemoList.setMemoList(centerLayout);
     }
 
     /**
@@ -100,11 +118,10 @@ public class MainActivity extends AppCompatActivity {
         calendarView.setOnDateChangeListener((c, year, month, day) -> {
             String strDate = Common.getStrDate(year,month,day);
 
-            // メモ編集画面の表示
-            MemoEdit.setMemoEditor(centerLayout, strDate, null, 0);
-
-            // カレンダーは非表示、center_layoutを表示状態に変更
-            setCalendarVisible(false);
+            // メモ編集画面を表示
+            Intent intent = new Intent(calendarView.getContext(), MemoEdit.class);
+            intent.putExtra(Common.DATE,strDate);
+            startActivity(intent);
         });
     }
 }
