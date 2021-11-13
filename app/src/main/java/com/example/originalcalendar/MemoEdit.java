@@ -2,7 +2,9 @@ package com.example.originalcalendar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,6 +35,31 @@ public class MemoEdit extends AppCompatActivity {
 
         // 初期状態のテキストを挿入
         editText1.setText(getDateInRecord());
+
+        // 画面上部に、メモが紐づく時刻を設定する
+        setTopTimeText();
+
+        // "戻る"メニューを設定
+        setBackEvent();
+    }
+
+    /**
+     * 画面上部に、メモが紐づく時刻を設定する
+     */
+    private void setTopTimeText(){
+        TextView textView = findViewById(R.id.top_time_text);
+        textView.setText(getDateInRecord());
+    }
+
+    /**
+     * back_from_edit_memo に対して、イベントを設定
+     */
+    private void setBackEvent(){
+        Button button = findViewById(R.id.back_from_edit_memo);
+        button.setOnClickListener(v -> {
+            // 現画面を終了して、元の画面に戻る
+            finish();
+        });
     }
 
     /**

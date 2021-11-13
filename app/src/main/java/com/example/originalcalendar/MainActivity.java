@@ -115,13 +115,18 @@ public class MainActivity extends AppCompatActivity {
      * カレンダー内の日付押下時のイベントを設定
      */
     private void setCalendarEvent(){
-        calendarView.setOnDateChangeListener((c, year, month, day) -> {
-            String strDate = Common.getStrDate(year,month,day);
+        try {
+            calendarView.setOnDateChangeListener((c, year, month, day) -> {
+                String strDate = Common.getStrDate(year, month, day);
 
-            // メモ編集画面を表示
-            Intent intent = new Intent(calendarView.getContext(), MemoEdit.class);
-            intent.putExtra(Common.DATE,strDate);
-            startActivity(intent);
-        });
+                // メモ編集画面を表示
+                Intent intent = new Intent(calendarView.getContext(), MemoEdit.class);
+                intent.putExtra(Common.DATE, strDate);
+                startActivity(intent);
+            });
+        }catch (Exception e){
+            System.out.println(">>>>>>>>>>>>>>>error");
+            System.out.println(e);
+        }
     }
 }
