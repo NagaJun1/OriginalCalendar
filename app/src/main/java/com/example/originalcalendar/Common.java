@@ -1,7 +1,5 @@
 package com.example.originalcalendar;
 
-import java.util.Calendar;
-
 public class Common {
     /**
      * コンマの固定文字列
@@ -39,11 +37,10 @@ public class Common {
         return strYear + COMMA + strMonth + COMMA + strDay;
     }
 
-    /**
+    /*
      * 日付から、曜日を取得
      * @param date 日付（年月日は、連結して文字列になっている）
      * @return 曜日に応じた数値
-     */
     public static int getDayOfWeek(String date){
          String[] dates = date.split(COMMA);
 
@@ -58,6 +55,7 @@ public class Common {
          }
         return 0;
     }
+    */
 
     /**
      * 保存されている情報から、引数とマッチする情報を取得
@@ -67,10 +65,13 @@ public class Common {
      * @return 取得された情報（文字列）
      */
     public static String getTextInRecord(String date, String time, int dayOfWeek) {
+        /*
         // 曜日が未指定の場合は、日付から曜日を取得
         if (dayOfWeek == 0) {
             dayOfWeek = getDayOfWeek(date);
         }
-        return "処理が未設定です。\n"+ date +"\n"+time+"\n"+ ONE_WEEK[dayOfWeek];
+         */
+
+        return "処理が未設定です。";
     }
 }

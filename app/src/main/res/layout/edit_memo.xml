@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     >
+    <Button
+        android:id="@+id/back_from_edit_memo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:text="@string/back_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        />
+
+    <Button
+        android:id="@+id/go_edit_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:text="@string/edit_alarm"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        />
 
     <!--メモが紐づく時刻-->
     <TextView
         android:id="@+id/top_time_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
         android:background="@color/light_blue"
+        android:layout_below="@id/back_from_edit_memo"
         android:layout_margin="@dimen/text_margin"
         android:textSize="@dimen/top_text_size"
         />
 
-    <EditText
-        android:id="@+id/top_editor"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/top_time_text"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_below="@id/top_time_text"
+        >
+        <EditText
+            android:id="@+id/center_memo_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </ScrollView>
 
-    <Button
-        android:id="@+id/back_from_edit_memo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/back_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

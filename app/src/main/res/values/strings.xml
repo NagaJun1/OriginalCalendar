@@ -4,4 +4,8 @@
     <string name="memo">メモ</string>
     <string name="calendar">カレンダー</string>
     <string name="back_button">＜</string>
+    <string name="edit_alarm">アラーム編集</string>
+    <string name="edit_memo">メモ編集</string>
+    <string name="alarm_sound_on_off">アラーム音 ON/OFF</string>
+    <string name="notification_on_off">通知 ON/OFF</string>
 </resources>
