@@ -8,9 +8,9 @@
         android:id="@+id/back_from_edit_memo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_margin="@dimen/default_margin"
         android:text="@string/back_button"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         />
 
@@ -18,10 +18,10 @@
         android:id="@+id/go_edit_alarm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_margin="@dimen/default_margin"
         android:text="@string/edit_alarm"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         />
 
     <!--メモが紐づく時刻-->
@@ -31,20 +31,20 @@
         android:layout_height="wrap_content"
         android:background="@color/light_blue"
         android:layout_below="@id/back_from_edit_memo"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_margin="@dimen/default_margin"
         android:textSize="@dimen/top_text_size"
         />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_margin="@dimen/default_margin"
         android:layout_below="@id/top_time_text"
         >
         <EditText
             android:id="@+id/center_memo_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             />
     </ScrollView>
 

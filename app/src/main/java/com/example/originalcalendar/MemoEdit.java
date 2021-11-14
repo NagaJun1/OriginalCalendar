@@ -48,26 +48,30 @@ public class MemoEdit extends AppCompatActivity {
      */
     private void initViews(){
         // 前画面の情報を取得
-        getIntentData();
-
-        // 中央のメモ編集領域の設定
-        setMemoText();
+        Intent thisIntent = getIntentData();
 
         // 画面上部に、メモが紐づく時刻を設定する
         setTopTimeText();
 
         // "戻る"メニューを設定
         setBackEvent();
+
+        // 中央のメモ編集領域の設定
+        setMemoText();
+
+        // アラーム編集画面へ遷移するボタンの処理の追加
+        setGoEditAlarm(thisIntent);
     }
 
     /**
      * 前画面で設定した情報を取得するための Intent
      */
-    private void getIntentData(){
+    private Intent getIntentData(){
         Intent intent = this.getIntent();
         strDate = intent.getStringExtra(Common.DATE);
         strTime = intent.getStringExtra(Common.TIME);
         intDayOfWeek = intent.getIntExtra(Common.DAY_OF_WEEK,0);
+        return intent;
     }
 
     /**
@@ -116,6 +120,32 @@ public class MemoEdit extends AppCompatActivity {
         // 初期状態のテキストを挿入
         // 条件に該当する"メモ"としての内容を取得する
         centerMemoText.setText(Common.getTextInRecord(strDate,strTime,intDayOfWeek));
+    }
+
+    /**
+     * アラーム編集画面へ遷移するボタンの処理の追加
+     */
+    private void setGoEditAlarm(Intent thisIntent){
+        Button btn = findViewById(R.id.go_edit_alarm);
+
+        // 既にメモ編集画面を開いている状態の場合は、ボタンを非表示に設定する
+        if(thisIntent.getBooleanExtra(Common.ALREADY_OPEN_EDIT_ALARM,false)){
+            btn.setVisibility(View.INVISIBLE);
+        }else {
+            // アラーム編集画面への画面遷移処理の追加
+            btn.setOnClickListener(v -> {
+                Intent newIntent = new Intent(btn.getContext(), AlarmEdit.class);
+
+                // メモ編集画面が存在する場合は、EXIST_MEMOを trueで設定する
+                newIntent.putExtra(Common.ALREADY_OPEN_EDIT_MEMO, true);
+
+                // 下記は、既存情報を引き継ぐ必要があるため、設定
+                newIntent.putExtra(Common.DATE, strDate);
+                newIntent.putExtra(Common.TIME, strTime);
+                newIntent.putExtra(Common.DAY_OF_WEEK, intDayOfWeek);
+                startActivity(newIntent);
+            });
+        }
     }
 
     /**

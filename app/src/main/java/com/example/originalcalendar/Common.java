@@ -27,6 +27,16 @@ public class Common {
     public static final String DAY_OF_WEEK = "DAY_OF_WEEK";
 
     /**
+     * Intent に「メモ編集画面を既に開いているかの判定」を設定、取り出すためのキー
+     */
+    public static final String ALREADY_OPEN_EDIT_MEMO = "ALREADY_OPEN_EDIT_MEMO";
+
+    /**
+     * Intent に「アラーム編集画面を既に開いているかの判定」を設定、取り出すためのキー
+     */
+    public static final String ALREADY_OPEN_EDIT_ALARM = "ALREADY_OPEN_EDIT_ALARM";
+
+    /**
      * 日付を規定フォーマットの文字列に修正
      * @return yyyy,mm,dd のフォーマットの文字列
      */
