@@ -94,6 +94,8 @@ public class Common {
                 // ファイルから読み込んだ中身を JSONのオブジェクトに変換
                 ObjectMapper mapper = new ObjectMapper();
                 JsonManager json = mapper.readValue(strJson, JsonManager.class);
+
+                // TODO 既存情報の確認
             } else {
                 writeInFile(context, text);
             }
