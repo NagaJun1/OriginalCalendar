@@ -24,15 +24,30 @@
         android:layout_alignParentEnd="true"
         />
 
-    <!--メモが紐づく時刻-->
+    <!--メモが紐づく日付・曜日（いずれか）-->
     <TextView
-        android:id="@+id/top_time_text"
-        android:layout_width="match_parent"
+        android:id="@+id/top_day_text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/light_blue"
         android:layout_below="@id/back_from_edit_memo"
+        android:layout_alignParentStart="true"
         android:layout_margin="@dimen/default_margin"
         android:textSize="@dimen/top_text_size"
+        android:text="日付"
+        />
+
+    <!--メモが紐づく時刻-->
+    <TextView
+        android:id="@+id/top_time_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/light_blue"
+        android:layout_below="@id/back_from_edit_memo"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/default_margin"
+        android:textSize="@dimen/top_text_size"
+        android:text="時刻"
         />
 
     <ScrollView

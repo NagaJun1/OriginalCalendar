@@ -117,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
     private void setCalendarEvent(){
         try {
             calendarView.setOnDateChangeListener((c, year, month, day) -> {
-                String strDate = Common.getStrDate(year, month, day);
+                // month（月）は、0~11 で処理されるため、+1する
+                String strDate = Common.getStrDate(year, month+1, day);
 
                 // メモ編集画面を表示
                 Intent intent = new Intent(calendarView.getContext(), MemoEdit.class);

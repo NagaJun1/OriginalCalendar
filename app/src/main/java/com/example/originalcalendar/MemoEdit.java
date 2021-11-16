@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 public class MemoEdit extends AppCompatActivity {
     /**
      * メモの編集領域
-     * TODO メモの保存のためにデータを取得する必要があるため、privateな変数として設定
      */
     private EditText centerMemoText = null;
 
@@ -78,25 +78,23 @@ public class MemoEdit extends AppCompatActivity {
      * 画面上部に、メモが紐づく時刻を設定する
      */
     private void setTopTimeText(){
-        TextView textView = findViewById(R.id.top_time_text);
-
-        // top_time_text に対しては、前画面で指定された時刻を挿入する
-        // 必要な情報だけを設定するため、不要な情報は除外
-        String text = null;
-        if(strDate != null){
-            text = strDate + " ";
-        }
+        // top_time_text に時刻を設定
+        TextView topTimeText = findViewById(R.id.top_time_text);
         if(strTime != null){
-            text += strTime + " ";
-        }
-        if(intDayOfWeek != 0){
-            text += Common.ONE_WEEK[intDayOfWeek];
-        }
-        // 設定できる情報が無い場合は、top_time_text を非表示に設定
-        if(text == null){
-            textView.setVisibility(View.INVISIBLE);
+            topTimeText.setText(strTime);
         } else {
-            textView.setText(text);
+            topTimeText.setVisibility(View.INVISIBLE);
+        }
+
+        // top_day_text に日付（もしくは曜日）を設定
+        TextView topDayText = findViewById(R.id.top_day_text);
+        if(strDate != null){
+            topDayText.setText(strDate);
+        } else if(intDayOfWeek != 0){
+            topDayText.setText(Common.ONE_WEEK[intDayOfWeek]);
+        } else {
+            // 設定できる情報が無い場合は、top_day_text を非表示に設定
+            topDayText.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -119,7 +117,7 @@ public class MemoEdit extends AppCompatActivity {
 
         // 初期状態のテキストを挿入
         // 条件に該当する"メモ"としての内容を取得する
-        centerMemoText.setText(Common.getTextInRecord(strDate,strTime,intDayOfWeek));
+        centerMemoText.setText(Common.getTextInRecord(strDate,strTime,intDayOfWeek, this));
     }
 
     /**
@@ -154,5 +152,14 @@ public class MemoEdit extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+
+        // centerMemoText内のテキストを取得
+        String text = centerMemoText.getText().toString();
+        if(text == null || 0 == text.length()) {
+            Toast.makeText(this,"保存を実行しませんでした",Toast.LENGTH_SHORT).show();
+        } else {
+            // 取得したテキストに記載があるのであれば、保存する
+            Common.writeSaveData(this,strDate,strTime,intDayOfWeek,text);
+        }
     }
 }

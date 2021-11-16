@@ -24,6 +24,7 @@
         android:layout_alignParentEnd="true"
         />
 
+    <!--表示する情報に紐づく日付・曜日のいずれかを表示-->
     <TextView
         android:id="@+id/top_day_text"
         android:layout_width="match_parent"

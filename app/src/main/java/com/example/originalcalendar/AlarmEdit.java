@@ -8,7 +8,7 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * ____画面に対応した処理
+ * アラーム編集画面に対応した処理
  */
 public class AlarmEdit extends AppCompatActivity {
     /**
