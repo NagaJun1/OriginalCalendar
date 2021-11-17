@@ -1,26 +1,15 @@
 package com.example.originalcalendar;
 
-import android.content.Context;
-import android.widget.Toast;
-
-import com.example.originalcalendar.JsonManagement.JsonManager;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-
 public class Common {
     /**
      * コンマの固定文字列
      */
-    public static final String COMMA = ",";
+    private static final String COMMA = ",";
 
     /**
      * コロンの固定文字列
      */
-    public static final String COLON = ":";
+    private static final String COLON = ":";
 
     /**
      * 一週間分の曜日の日本語配列
@@ -53,6 +42,11 @@ public class Common {
     public static final String ALREADY_OPEN_EDIT_ALARM = "ALREADY_OPEN_EDIT_ALARM";
 
     /**
+     * Intent に「メモに紐づくタグ」を設定、取り出すためのキー
+     */
+    public static final String TAG = "TAG";
+
+    /**
      * 日付を規定フォーマットの文字列に修正
      * @param year 年
      * @param month 月
@@ -67,6 +61,49 @@ public class Common {
     }
 
     /**
+     * 年月日から、「年」だけを取得
+     * @param date 年月日
+     * @return 年数
+     */
+    public static int getYearInDate(String date){
+        return getIntInDate(date,0);
+    }
+
+    /**
+     * 年月日から、「年」だけを取得
+     * @param date 年月日
+     * @return 月数
+     */
+    public static int getMonthInDate(String date){
+        return getIntInDate(date,1);
+    }
+
+    /**
+     * 年月日から、「年」だけを取得
+     * @param date 年月日
+     * @return 日数
+     */
+    public static int getDayInDate(String date) {
+        return getIntInDate(date,2);
+    }
+
+    /**
+     * 年月日のなかから、indexに該当する数値を取得
+     * @param date 年月日
+     * @param index 「年月日」のいずれかに該当する数値
+     * @return 取得された数値
+     */
+    private static int getIntInDate(String date, int index){
+        String[] dates = date.split(COMMA);
+        if(index < dates.length){
+            return Integer.parseInt(dates[index]);
+        }else {
+            System.out.println("規定の文字列ではない");
+            return 0;
+        }
+    }
+
+    /**
      * 時刻の規定フォーマットを作成
      * @param hour 時
      * @param minutes 分
@@ -77,103 +114,36 @@ public class Common {
     }
 
     /**
-     * JSONのフォーマットに修正して、ローカルファイルにメモを記録
-     * @param context 処理実行画面の Context
-     * @param date 年月日
-     * @param time 時刻
-     * @param dayOfWeek 曜日
-     * @param text 書き込みを行いたい文字列
+     * 時刻文字列から、時間だけを取得
+     * @param time 時:分の文字列
+     * @return 時間
      */
-    public static void writeSaveData(Context context, String date, String time, int dayOfWeek, String text) {
-        try {
-            // ローカルファイルに保存されたJSON の取得
-            String strJson = readSaveData(context);
-
-            // TODO null の回避
-            if (strJson != null) {
-                // ファイルから読み込んだ中身を JSONのオブジェクトに変換
-                ObjectMapper mapper = new ObjectMapper();
-                JsonManager json = mapper.readValue(strJson, JsonManager.class);
-
-                // TODO 既存情報の確認
-            } else {
-                writeInFile(context, text);
-            }
-        }catch (Exception e){
-            System.out.println(e.toString());
-        }
+    public static int getHourInTime(String time) {
+        return getIntInTime(time,0);
     }
 
     /**
-     * 保存されている情報から、引数とマッチする情報を取得
-     * @param date      年月日
-     * @param time      時刻
-     * @param dayOfWeek 曜日
-     * @param context 処理実行画面の Context
-     * @return 取得された情報（文字列）
+     * 時刻文字列から、「分」だけを取得
+     * @param time 時:分の文字列
+     * @return 分
      */
-    public static String getTextInRecord(String date, String time, int dayOfWeek, Context context) {
-        // ローカルファイルから、データを読み込み
-        String readData = readSaveData(context);
-
-        /*
-        // 曜日が未指定の場合は、日付から曜日を取得
-        if (dayOfWeek == 0) {
-            dayOfWeek = getDayOfWeek(date);
-        }
-         */
-
-        // TODO 条件の設定がされていないため、後で修正
-        return readData;
+    public static int getMinutesInTime(String time) {
+        return getIntInTime(time,1);
     }
 
     /**
-     * メモのデータを保存するファイル名
+     * 時刻文字列から、indexに該当する数値を取得する
+     * @param time 時刻文字列
+     * @param index 取得する数値に対応する数値
+     * @return 取得された数値
      */
-    private static final String FILE_NAME = "memo_save_data.json";
-
-    /**
-     * 保存データの書き換え（全て上書き）
-     * @param context 処理の実行画面のContext
-     * @param text ファイルに書き込むテキストデータ
-     */
-    private static void writeInFile(Context context,String text) {
-        try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + FILE_NAME)) {
-            writer.write(text);
-        } catch (Exception e) {
-            Toast.makeText(context, "メモの書き込みに失敗しました。", Toast.LENGTH_SHORT).show();
-            System.out.println(e.toString());
-        }
-    }
-
-    /**
-     * 保存データの読み込み（全て読み込み）
-     * @param context 処理の実行画面の Context
-     * @return 読み込んだデータ
-     */
-    private static String readSaveData(Context context) {
-        String dirPath = context.getFilesDir().getAbsolutePath();
-        File file = new File(dirPath + "\\" + FILE_NAME);
-
-        // 読み込むファイルが存在しない場合は処理しない
-        if(!file.exists()){
-            return null;
-        }
-        try (
-                BufferedReader br = new BufferedReader(new FileReader(file))
-        ) {
-            // 一行ずつ読み込み、一つの文章として、読み込み結果を返す
-            StringBuilder text = new StringBuilder();
-            String line = br.readLine();
-            while (line != null){
-                text.append(line).append("\n");
-                line = br.readLine();
-            }
-            return text.toString();
-        } catch (Exception e) {
-            Toast.makeText(context, "メモの取得に失敗しました。", Toast.LENGTH_SHORT).show();
-            System.out.println(e.toString());
-            return null;
+    private static int getIntInTime(String time,int index){
+        String[] times = time.split(COLON);
+        if(index < times.length){
+            return Integer.parseInt(times[index]);
+        }else {
+            System.out.println("規定の文字列ではない");
+            return 0;
         }
     }
 }

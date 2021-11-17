@@ -8,8 +8,8 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.ChildrenContent.AlarmList;
-import com.example.originalcalendar.ChildrenContent.MemoList;
+import com.example.originalcalendar.ChildrenContent.AlarmListLayout;
+import com.example.originalcalendar.ChildrenContent.MemoListLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setAlarmList(){
         setCalendarVisible(false);
-        AlarmList.setAlarmList(centerLayout);
+        AlarmListLayout.setAlarmList(centerLayout);
     }
 
     /**
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setMemoList(){
         setCalendarVisible(false);
-        MemoList.setMemoList(centerLayout);
+        MemoListLayout.setMemoList(centerLayout);
     }
 
     /**
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }catch (Exception e){
             System.out.println(">>>>>>>>>>>>>>>error");
-            System.out.println(e);
+            System.out.println(e.toString());
         }
     }
 }

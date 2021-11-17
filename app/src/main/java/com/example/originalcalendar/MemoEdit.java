@@ -1,5 +1,6 @@
 package com.example.originalcalendar;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +10,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.originalcalendar.JsonManagement.JsonCalendarManager;
+import com.example.originalcalendar.JsonManagement.JsonMemoListManager;
+
+import java.util.UUID;
 
 /**
  * edit_memo.xmlに対応した処理
@@ -28,6 +34,11 @@ public class MemoEdit extends AppCompatActivity {
      * 前画面から取得してきた時刻
      */
     private String strTime = null;
+
+    /**
+     * 設定するテキストに紐づくタグ
+     */
+    private String strTag = null;
 
     /**
      * 前画面から取得してきた曜日
@@ -71,6 +82,7 @@ public class MemoEdit extends AppCompatActivity {
         strDate = intent.getStringExtra(Common.DATE);
         strTime = intent.getStringExtra(Common.TIME);
         intDayOfWeek = intent.getIntExtra(Common.DAY_OF_WEEK,0);
+        strTag = intent.getStringExtra(Common.TAG);
         return intent;
     }
 
@@ -114,10 +126,97 @@ public class MemoEdit extends AppCompatActivity {
      */
     private void setMemoText(){
         centerMemoText = findViewById(R.id.center_memo_text);
+        centerMemoText.setText(getMemoText());
+    }
 
-        // 初期状態のテキストを挿入
-        // 条件に該当する"メモ"としての内容を取得する
-        centerMemoText.setText(Common.getTextInRecord(strDate,strTime,intDayOfWeek, this));
+    /**
+     * ローカルに保存されているテキストを取得する
+     * @return 取得されたテキスト
+     */
+    private String getMemoText() {
+        // 日付に紐づくメモを取得
+        String textByDay = getMemoTextByDay();
+        if(textByDay!=null){
+            return textByDay;
+        }
+        // タグに紐づくメモのテキストを取得
+        String textByTag = getMemoTextByTag();
+        if (textByTag!=null){
+            return textByTag;
+        }
+        // 新しいタグ文字列を生成（strTagに設定される）
+        createNewTag();
+        return "";
+    }
+
+    /**
+     * 日付の情報に紐づくメモのテキストを取得
+     * @return 取得したメモのテキスト
+     */
+    private String getMemoTextByDay(){
+        String text = null;
+        if(strDate!=null&&0<strDate.length()){
+            // 日付に紐づくメモのテキストの取得
+            text = searchTextByDay(strDate);
+        }else if(0<intDayOfWeek){
+            // 曜日に紐づくメモのテキストの取得
+            text = searchTextByDay(String.valueOf(intDayOfWeek));
+        }
+        return text;
+    }
+
+    /**
+     * ローカルファイル内の strDay に紐づくテキストの取得
+     * @param strDay 日付・曜日のいずれかの文字列
+     * @return 取得されたテキスト
+     */
+    private String searchTextByDay(String strDay){
+        // ローカルファイルから、カレンダーの保存データを取得
+        JsonCalendarManager.JsonCalendarDate json = JsonCalendarManager.getJson(this);
+
+        // JsonCalendarDate の中の、strDayと合致する情報を取得
+        for(JsonCalendarManager.Day day :json.days){
+            if(day.day.equals(strDay)){
+                for(JsonCalendarManager.ByDay time: day.times){
+                    // 現画面上で処理されている時刻と一致する情報を取得
+                    if(time.time.equals(strTime)){
+                        return time.byTime.memo;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * タグに紐づくテキストを、ローカルファイルから取得
+     * @return 取得されたメモのテキスト
+     */
+    private String getMemoTextByTag(){
+        JsonMemoListManager.MemoList memoList = JsonMemoListManager.readMemoList(this);
+        for (JsonMemoListManager.A_Memo aMemo : memoList.list) {
+            // タグが一致する情報を取得
+            if (strTag.equals(aMemo.tag)) {
+                return aMemo.memo;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 新しいタグ文字列を生成（strTagに設定される）
+     */
+    private void createNewTag(){
+        while (true) {
+            // 既存データ内に存在しないタグを生成
+            strTag = UUID.randomUUID().toString();
+            String textByTag = getMemoTextByTag();
+
+            // 既存データ内に存在しないタグが生成された場合は、textByTag が null となる
+            if(textByTag == null){
+                return;
+            }
+        }
     }
 
     /**
@@ -131,18 +230,46 @@ public class MemoEdit extends AppCompatActivity {
             btn.setVisibility(View.INVISIBLE);
         }else {
             // アラーム編集画面への画面遷移処理の追加
-            btn.setOnClickListener(v -> {
-                Intent newIntent = new Intent(btn.getContext(), AlarmEdit.class);
+            btn.setOnClickListener(v -> startActivity(createEditAlarmIntent(this)));
+        }
+    }
 
-                // メモ編集画面が存在する場合は、EXIST_MEMOを trueで設定する
-                newIntent.putExtra(Common.ALREADY_OPEN_EDIT_MEMO, true);
+    /**
+     * アラーム編集画面の Intent（アラーム編集画面を表示して、戻ってきた場合に使用する
+     */
+    private Intent alarmEditIntent = null;
 
-                // 下記は、既存情報を引き継ぐ必要があるため、設定
-                newIntent.putExtra(Common.DATE, strDate);
-                newIntent.putExtra(Common.TIME, strTime);
-                newIntent.putExtra(Common.DAY_OF_WEEK, intDayOfWeek);
-                startActivity(newIntent);
-            });
+    /**
+     * edit_alarm ページのIntent を生成
+     * @param context 現画面の Context
+     * @return 生成した Intent
+     */
+    private Intent createEditAlarmIntent(Context context){
+        alarmEditIntent = new Intent(context, AlarmEdit.class);
+
+        // メモ編集画面が存在する場合は、EXIST_MEMOを trueで設定する
+        alarmEditIntent.putExtra(Common.ALREADY_OPEN_EDIT_MEMO, true);
+
+        // 下記は、既存情報を引き継ぐ必要があるため、設定
+        alarmEditIntent.putExtra(Common.DATE, strDate);
+        alarmEditIntent.putExtra(Common.TIME, strTime);
+        alarmEditIntent.putExtra(Common.DAY_OF_WEEK, intDayOfWeek);
+        alarmEditIntent.putExtra(Common.TAG,strTag);
+        return alarmEditIntent;
+    }
+
+    /**
+     * 画面復帰時（アラーム編集画面から戻ってきたとき？）
+     */
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+
+        // TODO
+        // アラーム編集画面の情報から復帰した場合かの確認
+        Toast.makeText(this,"onRestart()",Toast.LENGTH_SHORT).show();
+        if(alarmEditIntent!=null){
+            // アラーム編集画面で編集された時刻の取得
         }
     }
 
@@ -155,11 +282,31 @@ public class MemoEdit extends AppCompatActivity {
 
         // centerMemoText内のテキストを取得
         String text = centerMemoText.getText().toString();
-        if(text == null || 0 == text.length()) {
+        if(0 == text.length()) {
             Toast.makeText(this,"保存を実行しませんでした",Toast.LENGTH_SHORT).show();
         } else {
             // 取得したテキストに記載があるのであれば、保存する
-            Common.writeSaveData(this,strDate,strTime,intDayOfWeek,text);
+            saveNowData();
+        }
+    }
+
+    /**
+     * 現画面上で処理されている内容をローカルファイルに保存する
+     */
+    private void saveNowData(){
+        // 画面中央の EditText から テキストを取得
+        String memoText = centerMemoText.getText().toString();
+
+        if(strDate != null && 0 < strDate.length()){
+            // 年月日 を使用した場合の処理
+            JsonCalendarManager.setMemoDate(this,strDate,strTime,memoText);
+        }else if (0 < intDayOfWeek){
+            // 曜日を使用した場合の処理
+            JsonCalendarManager.setMemoDate(this,String.valueOf(intDayOfWeek),strTime,memoText);
+        }else if(strDate!=null){
+            // 年月日・曜日に依存しない
+            // memo_list.json に保存
+            JsonMemoListManager.setMemoList(this, strTag, memoText);
         }
     }
 }

@@ -2,7 +2,7 @@ package com.example.originalcalendar.ChildrenContent;
 
 import android.widget.LinearLayout;
 
-public class MemoList {
+public class MemoListLayout {
     /**
      * center_layout にメモ一覧情報を表示
      * @param centerLayout center_layout
