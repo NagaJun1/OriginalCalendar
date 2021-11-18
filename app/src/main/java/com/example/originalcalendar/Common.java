@@ -1,5 +1,7 @@
 package com.example.originalcalendar;
 
+import android.content.Intent;
+
 public class Common {
     /**
      * コンマの固定文字列
@@ -24,7 +26,36 @@ public class Common {
     /**
      * Intent に時刻を設定、取り出すためのキー
      */
-    public static final String TIME = "TIME";
+    private static final String TIME = "TIME";
+
+    /**
+     * 時刻が null のときの代わりの値
+     */
+    public static final String TIME_ZERO = "0";
+
+    /**
+     * Intent に対して、時刻を文字列で設定
+     * @param intent 設定する Intent
+     * @param time 時刻の文字列
+     */
+    public static void setTimeInIntent(Intent intent, String time){
+        if(isEmptyOrNull(time)){
+            time = TIME_ZERO;
+        }
+        intent.putExtra(TIME, time);
+    }
+
+    /**
+     * Intent から、時刻を取得
+     * @return 時刻の文字列（なければ、"0"）
+     */
+    public static String getTimeInIntent(Intent intent){
+        String time = intent.getStringExtra(TIME);
+        if(isEmptyOrNull(time)){
+            return TIME_ZERO;
+        }
+        return time;
+    }
 
     /**
      * Intent に曜日識別用の数字を設定、取り出すためのキー
@@ -45,6 +76,15 @@ public class Common {
      * Intent に「メモに紐づくタグ」を設定、取り出すためのキー
      */
     public static final String TAG = "TAG";
+
+    /**
+     * 引数の文字列が null、もしくは空か
+     * @param str 文字列
+     * @return true/false
+     */
+    public static boolean isEmptyOrNull(String str){
+        return str == null || str.isEmpty();
+    }
 
     /**
      * 日付を規定フォーマットの文字列に修正
@@ -110,7 +150,7 @@ public class Common {
      * @return hh:mm のフォーマットを作成
      */
     public static String getStrTime(int hour,int minutes){
-        return String.valueOf(hour) + COLON + String.valueOf(minutes);
+        return hour + COLON + minutes;
     }
 
     /**

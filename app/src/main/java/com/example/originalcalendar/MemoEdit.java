@@ -80,7 +80,7 @@ public class MemoEdit extends AppCompatActivity {
     private Intent getIntentData(){
         Intent intent = this.getIntent();
         strDate = intent.getStringExtra(Common.DATE);
-        strTime = intent.getStringExtra(Common.TIME);
+        strTime = Common.getTimeInIntent(intent);
         intDayOfWeek = intent.getIntExtra(Common.DAY_OF_WEEK,0);
         strTag = intent.getStringExtra(Common.TAG);
         return intent;
@@ -92,9 +92,12 @@ public class MemoEdit extends AppCompatActivity {
     private void setTopTimeText(){
         // top_time_text に時刻を設定
         TextView topTimeText = findViewById(R.id.top_time_text);
-        if(strTime != null){
+
+        // strTimeが空ではなく、"0"でも無い
+        if(!Common.isEmptyOrNull(strTime) && !strTime.equals(Common.TIME_ZERO)){
             topTimeText.setText(strTime);
         } else {
+            // 時刻文字列を設定しない場合は、非表示
             topTimeText.setVisibility(View.INVISIBLE);
         }
 
@@ -251,8 +254,8 @@ public class MemoEdit extends AppCompatActivity {
         alarmEditIntent.putExtra(Common.ALREADY_OPEN_EDIT_MEMO, true);
 
         // 下記は、既存情報を引き継ぐ必要があるため、設定
+        Common.setTimeInIntent(alarmEditIntent,strTime);
         alarmEditIntent.putExtra(Common.DATE, strDate);
-        alarmEditIntent.putExtra(Common.TIME, strTime);
         alarmEditIntent.putExtra(Common.DAY_OF_WEEK, intDayOfWeek);
         alarmEditIntent.putExtra(Common.TAG,strTag);
         return alarmEditIntent;

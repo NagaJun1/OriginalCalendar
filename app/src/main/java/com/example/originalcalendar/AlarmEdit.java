@@ -77,7 +77,7 @@ public class AlarmEdit extends AppCompatActivity {
     private Intent getIntentData(){
         Intent thisIntent = this.getIntent();
         strDate = thisIntent.getStringExtra(Common.DATE);
-        initTime = thisIntent.getStringExtra(Common.TIME);
+        initTime = Common.getTimeInIntent(thisIntent);
         intDayOfWeek = thisIntent.getIntExtra(Common.DAY_OF_WEEK,0);
         return thisIntent;
     }
@@ -138,7 +138,8 @@ public class AlarmEdit extends AppCompatActivity {
         memoEditIntent = new Intent(this,MemoEdit.class);
 
         // 現画面の時刻を Intent に保存する
-        memoEditIntent.putExtra(Common.TIME, getClockTime());
+
+        Common.setTimeInIntent(memoEditIntent, getClockTime());
 
         // アラーム編集画面が既に開かれた判定を設定する
         memoEditIntent.putExtra(Common.ALREADY_OPEN_EDIT_ALARM,true);

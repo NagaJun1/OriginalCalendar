@@ -56,13 +56,13 @@ public class JsonCalendarManager {
         /**
          * 時間に紐づく JSON
          */
-        public ByTime byTime = null;
+        public ByTime byTime = new ByTime();
     }
 
     /**
      * 時刻に紐づく JSON
      */
-    public class ByTime {
+    public static class ByTime {
         /**
          * メモのテキスト情報
          */
@@ -96,19 +96,29 @@ public class JsonCalendarManager {
         // ローカルファイルに保存されているJSONを取得
         JsonCalendarDate json = getJson(context);
 
+        // 日付が一致するJSONの格納先
+        Day dayData = null;
+
         // 日付に紐づく情報を取得
         for (int i = 0;i < json.days.size();i++){
             // 日付・曜日が一致するデータを取得し、json内から削除する
-            Day dayData = json.days.get(i);
-            if(dayData.day.equals(strDay)) {
+            if(json.days.get(i).day.equals(strDay)) {
+                dayData = json.days.get(i);
                 json.days.remove(i);
-
-                // 取得された dayDataに情報を埋め込み->結果を json に格納
-                Day newDayDate = setMemoDateInDay(dayData,strTime,text);
-                json.days.add(newDayDate);
                 break;
             }
         }
+        // 日付の一致するJSONが取得されなかった場合
+        if(dayData == null) {
+            dayData = new Day();
+            dayData.day = strDay;
+        }
+        // 取得された dayDataに情報を埋め込み -> 処理結果を json に格納
+        Day newDayDate = setMemoDateInDay(dayData, strTime, text);
+        json.days.add(newDayDate);
+
+        // ファイルに保存
+        saveInFile(context,json);
     }
 
     /**
@@ -145,7 +155,7 @@ public class JsonCalendarManager {
      * @param context 処理の実行画面のContext
      * @param jsonCalendar ファイルに書き込むテキストデータ
      */
-    private static void saveInFile(Context context,JsonCalendarDate jsonCalendar) {
+    private static void saveInFile(Context context, JsonCalendarDate jsonCalendar) {
         try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + CALENDAR_DATA_FILE)) {
             ObjectMapper mapper = new ObjectMapper();
             String strJson = mapper.writeValueAsString(jsonCalendar);
