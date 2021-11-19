@@ -262,17 +262,15 @@ public class MemoEdit extends AppCompatActivity {
     }
 
     /**
-     * 画面復帰時（アラーム編集画面から戻ってきたとき？）
+     * 画面復帰時（アラーム編集画面から戻ってきたとき）
      */
     @Override
     protected void onRestart(){
         super.onRestart();
 
-        // TODO
-        // アラーム編集画面の情報から復帰した場合かの確認
-        Toast.makeText(this,"onRestart()",Toast.LENGTH_SHORT).show();
-        if(alarmEditIntent!=null){
+        if(alarmEditIntent != null){
             // アラーム編集画面で編集された時刻の取得
+            strTime = Common.getTimeInIntent(alarmEditIntent);
         }
     }
 
