@@ -7,14 +7,11 @@
     android:layout_height="match_parent"
     android:paddingTop="?attr/actionBarSize">
 
-    <LinearLayout
-        android:id="@+id/center_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+    <!--カレンダー・メモ一覧・アラーム一覧は下記でincludeし、visibilityを操作-->
+    <include layout="@layout/list_layout"
+        android:id="@+id/included_list_layout"
         android:visibility="invisible"
         />
-
     <include layout="@layout/child_calender"
         android:id="@+id/calender"/>
 

@@ -5,11 +5,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.ChildrenContent.AlarmListLayout;
-import com.example.originalcalendar.ChildrenContent.MemoListLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,9 +18,9 @@ public class MainActivity extends AppCompatActivity {
     private CalendarView calendarView = null;
 
     /**
-     * 画面中央に配置してある LinearLayout
+     * メモ一覧、アラーム一覧を表示するための領域
      */
-    private LinearLayout centerLayout = null;
+    private RelativeLayout listLayout = null;
 
     /**
      * 画面下部のナビゲーションバー
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initViews(){
         calendarView = findViewById(R.id.calender);
-        centerLayout = findViewById(R.id.center_layout);
+        listLayout = findViewById(R.id.included_list_layout);
         navView = findViewById(R.id.nav_view);
 
         // BottomNavigationViewにイベントを設定
@@ -86,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setAlarmList(){
         setCalendarVisible(false);
-        AlarmListLayout.setAlarmList(centerLayout);
     }
 
     /**
@@ -94,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setMemoList(){
         setCalendarVisible(false);
-        MemoListLayout.setMemoList(centerLayout);
     }
 
     /**
@@ -104,10 +101,11 @@ public class MainActivity extends AppCompatActivity {
     private void setCalendarVisible(boolean visible){
         if(visible){
             calendarView.setVisibility(View.VISIBLE);
-            centerLayout.setVisibility(View.INVISIBLE);
+            listLayout.setVisibility(View.INVISIBLE);
+
         } else {
             calendarView.setVisibility(View.INVISIBLE);
-            centerLayout.setVisibility(View.VISIBLE);
+            listLayout.setVisibility(View.VISIBLE);
         }
     }
 

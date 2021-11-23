@@ -8,4 +8,5 @@
     <string name="edit_memo">メモ編集</string>
     <string name="alarm_sound_on_off">アラーム音 ON/OFF</string>
     <string name="notification_on_off">通知 ON/OFF</string>
+    <string name="create_new">新規作成</string>
 </resources>
