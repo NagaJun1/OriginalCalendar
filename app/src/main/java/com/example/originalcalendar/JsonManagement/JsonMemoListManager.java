@@ -50,7 +50,7 @@ public class JsonMemoListManager {
         // 既存のメモリストの読み込み
         MemoList memoList = readMemoList(context);
         for(int i = 0;i < memoList.list.size();i++){
-            if(memoList.list.get(i).tag == tag){
+            if(memoList.list.get(i).tag.equals(tag)){
                 // 既存データの中に、重複するデータがある場合は、該当データを削除
                 memoList.list.remove(i);
                 break;

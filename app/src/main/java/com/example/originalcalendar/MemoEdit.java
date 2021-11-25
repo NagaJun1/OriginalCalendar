@@ -304,7 +304,7 @@ public class MemoEdit extends AppCompatActivity {
         }else if (0 < intDayOfWeek){
             // 曜日を使用した場合の処理
             JsonCalendarManager.setMemoDate(this,String.valueOf(intDayOfWeek),strTime,memoText);
-        }else if(strDate!=null){
+        }else{
             // 年月日・曜日に依存しない
             // memo_list.json に保存
             JsonMemoListManager.setMemoList(this, strTag, memoText);
