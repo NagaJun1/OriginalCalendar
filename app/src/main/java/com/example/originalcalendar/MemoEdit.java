@@ -103,7 +103,7 @@ public class MemoEdit extends AppCompatActivity {
 
         // top_day_text に日付（もしくは曜日）を設定
         TextView topDayText = findViewById(R.id.top_day_text);
-        if(strDate != null){
+        if(!Common.isEmptyOrNull(strDate)){
             topDayText.setText(strDate);
         } else if(intDayOfWeek != 0){
             topDayText.setText(Common.ONE_WEEK[intDayOfWeek]);
@@ -139,12 +139,12 @@ public class MemoEdit extends AppCompatActivity {
     private String getMemoText() {
         // 日付に紐づくメモを取得
         String textByDay = getMemoTextByDay();
-        if(textByDay!=null){
+        if(!Common.isEmptyOrNull(textByDay)){
             return textByDay;
         }
         // タグに紐づくメモのテキストを取得
         String textByTag = getMemoTextByTag();
-        if (textByTag!=null){
+        if(!Common.isEmptyOrNull(textByTag)){
             return textByTag;
         }
         // 新しいタグ文字列を生成（strTagに設定される）
@@ -158,7 +158,7 @@ public class MemoEdit extends AppCompatActivity {
      */
     private String getMemoTextByDay(){
         String text = null;
-        if(strDate!=null&&0<strDate.length()){
+        if(!Common.isEmptyOrNull(strDate)){
             // 日付に紐づくメモのテキストの取得
             text = searchTextByDay(strDate);
         }else if(0<intDayOfWeek){
@@ -196,11 +196,15 @@ public class MemoEdit extends AppCompatActivity {
      * @return 取得されたメモのテキスト
      */
     private String getMemoTextByTag(){
-        JsonMemoListManager.MemoList memoList = JsonMemoListManager.readMemoList(this);
-        for (JsonMemoListManager.A_Memo aMemo : memoList.list) {
-            // タグが一致する情報を取得
-            if (strTag.equals(aMemo.tag)) {
-                return aMemo.memo;
+        // strTag が 空なら無視
+        if(!Common.isEmptyOrNull(strTag)) {
+            // ローカルファイルから、保存されているメモリストを取得
+            JsonMemoListManager.MemoList memoList = JsonMemoListManager.readMemoList(this);
+            for (JsonMemoListManager.A_Memo aMemo : memoList.list) {
+                // タグが一致する情報を取得
+                if (strTag == aMemo.tag) {
+                    return aMemo.memo;
+                }
             }
         }
         return null;
@@ -298,7 +302,7 @@ public class MemoEdit extends AppCompatActivity {
         // 画面中央の EditText から テキストを取得
         String memoText = centerMemoText.getText().toString();
 
-        if(strDate != null && 0 < strDate.length()){
+        if(!Common.isEmptyOrNull(strDate)){
             // 年月日 を使用した場合の処理
             JsonCalendarManager.setMemoDate(this,strDate,strTime,memoText);
         }else if (0 < intDayOfWeek){
