@@ -10,27 +10,14 @@ import android.widget.TimePicker;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
+
 /**
  * アラーム編集画面に対応した処理
  */
 public class AlarmEdit extends AppCompatActivity {
     /**
-     * 前画面から取得してきた年月日
-     */
-    private String strDate = null;
-
-    /**
-     * 前画面から取得してきた時刻
-     */
-    private String initTime = null;
-
-    /**
-     * 前画面から取得してきた曜日
-     */
-    private int intDayOfWeek = 0;
-
-    /**
-     * center_time_picker
+     * id = center_time_picker の TimePicker
      */
     private TimePicker centerClock = null;
 
@@ -58,41 +45,32 @@ public class AlarmEdit extends AppCompatActivity {
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void initViews(){
-        // 前画面で設定された「年月日、時刻、曜日」を取得する
-        Intent thisIntent = getIntentData();
+        CurrentProcessingData.JsonCurrentProcessData jsonCurrentProcessData
+                = CurrentProcessingData.getJSON(this);
 
         // center_time_pickerの取得と設定
-        setCenterClock();
+        setCenterClock(jsonCurrentProcessData);
 
         // "戻る"メニューを設定
         setBackEvent();
 
         // メモ編集へ遷移するボタンのイベント設定
-        setGoEditMemo(thisIntent);
-    }
-
-    /**
-     * 前画面で設定した情報を取得するための Intent から情報を取得
-     */
-    private Intent getIntentData(){
-        Intent thisIntent = this.getIntent();
-        strDate = thisIntent.getStringExtra(Common.DATE);
-        initTime = Common.getTimeInIntent(thisIntent);
-        intDayOfWeek = thisIntent.getIntExtra(Common.DAY_OF_WEEK,0);
-        return thisIntent;
+        setGoEditMemo(jsonCurrentProcessData);
     }
 
     /**
      * center_time_picker の設定
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void setCenterClock(){
+    private void setCenterClock(CurrentProcessingData.JsonCurrentProcessData jsonCurrentProcessData){
         centerClock = findViewById(R.id.center_time_picker);
 
         // 24時間表示で固定する
         centerClock.setIs24HourView(true);
-        centerClock.setHour(Common.getHourInTime(initTime));
-        centerClock.setMinute(Common.getMinutesInTime(initTime));
+
+        // center_time_picker の時刻を設定
+        centerClock.setHour(Common.getHourInTime(jsonCurrentProcessData.strTime));
+        centerClock.setMinute(Common.getMinutesInTime(jsonCurrentProcessData.strTime));
     }
 
     /**
@@ -108,46 +86,22 @@ public class AlarmEdit extends AppCompatActivity {
 
     /**
      * メモ画面へ遷移する処理を追加
-     * @param thisIntent この画面の Intent
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private void setGoEditMemo(Intent thisIntent){
+    private void setGoEditMemo(CurrentProcessingData.JsonCurrentProcessData jsonCurrentProcessData){
         Button btn = findViewById(R.id.go_edit_memo);
 
         // メモ編集画面から遷移してきた場合は、ボタンを非表示にする
-        if(thisIntent.getBooleanExtra(Common.ALREADY_OPEN_EDIT_MEMO,false)){
+        if(jsonCurrentProcessData.alreadyOpenEditMemo){
             btn.setVisibility(View.INVISIBLE);
         }else {
             // メモ編集画面への遷移処理の実装
-            btn.setOnClickListener(v -> startActivity(createMemoEditIntent()));
+            btn.setOnClickListener(v -> {
+                // アラーム編集画面表示済みフラグをON
+                CurrentProcessingData.setOpenEditAlarm(this, true);
+                startActivity(new Intent(this, MemoEdit.class));
+            });
         }
-    }
-
-    /**
-     * メモ編集画面 のIntent
-     * （メモ編集画面からの復帰時に使用…できるのか？）
-     * TODO 要確認
-     */
-    private Intent memoEditIntent = null;
-
-    /**
-     * メモ編集画面の Intentの生成
-     */
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private Intent createMemoEditIntent(){
-        memoEditIntent = new Intent(this,MemoEdit.class);
-
-        // 現画面の時刻を Intent に保存する
-
-        Common.setTimeInIntent(memoEditIntent, getClockTime());
-
-        // アラーム編集画面が既に開かれた判定を設定する
-        memoEditIntent.putExtra(Common.ALREADY_OPEN_EDIT_ALARM,true);
-
-        // 既存情報の引き継ぎ
-        memoEditIntent.putExtra(Common.DATE,strDate);
-        memoEditIntent.putExtra(Common.DAY_OF_WEEK,intDayOfWeek);
-        return memoEditIntent;
     }
 
     /**
@@ -156,10 +110,6 @@ public class AlarmEdit extends AppCompatActivity {
     @Override
     protected void onRestart(){
         super.onRestart();
-
-        // TODO メモ編集画面からの復帰時に使用？
-        if(memoEditIntent!=null){
-        }
     }
 
     /**
@@ -170,10 +120,14 @@ public class AlarmEdit extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
+        // 現行処理管理用の JSON に時刻、曜日を保存
+        CurrentProcessingData.setTime(this,getClockTime());
+
+        // 曜日の設定
+        CurrentProcessingData.setDayOfWeek(this, 0);
+
         // TODO アラーム情報の編集と保存
         System.out.println(getClockTime()+"＜既存のデータ内に同一のデータが存在する場合は、変更");
 
-        // TODO 変更する時刻
-        System.out.println(initTime);
     }
 }

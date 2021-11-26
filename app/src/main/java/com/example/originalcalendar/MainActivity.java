@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
 import com.example.originalcalendar.JsonManagement.JsonMemoListManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -134,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private TextView createNewTextView(JsonMemoListManager.A_Memo aMemo){
         TextView textView = new TextView(this);
+        textView.setTextSize(20);
         textView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -143,12 +145,24 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(aMemo.memo.split("\n")[0]);
 
         // 生成された TextView の押下時に アラーム・メモ編集画面に移行
-        textView.setOnClickListener(v -> {
-            Intent newIntent = new Intent(this, MemoEdit.class);
-            newIntent.putExtra(Common.TAG, aMemo.tag);
-            startActivity(newIntent);
-        });
+        textView.setOnClickListener(v -> onClickMemoElement(aMemo.tag));
         return textView;
+    }
+
+    /**
+     * メモ一覧内の項目の押下時の処理
+     */
+    private void onClickMemoElement(String tag){
+        // 現画面で指定されたタグを JsonCurrentProcessData に保存
+        CurrentProcessingData.setTag(this, tag);
+        CurrentProcessingData.setDate(this,null);
+        CurrentProcessingData.setTime(this, null);
+        CurrentProcessingData.setDayOfWeek(this,0);
+        CurrentProcessingData.setOpenEditAlarm(this,false);
+        CurrentProcessingData.setOpenEditMemo(this,false);
+
+        // メモ編集画面に遷移
+        startActivity(new Intent(this, MemoEdit.class));
     }
 
     /**
@@ -174,10 +188,11 @@ public class MainActivity extends AppCompatActivity {
                 // month（月）は、0~11 で処理されるため、+1する
                 String strDate = Common.getStrDate(year, month+1, day);
 
+                // 現画面の時刻を保存
+                CurrentProcessingData.setDate(this, strDate);
+
                 // メモ編集画面を表示
-                Intent intent = new Intent(this, MemoEdit.class);
-                intent.putExtra(Common.DATE, strDate);
-                startActivity(intent);
+                startActivity(new Intent(this, MemoEdit.class));
             });
         }catch (Exception e){
             System.out.println(">>>>>>>>>>>>>>>error");
