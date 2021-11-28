@@ -38,11 +38,14 @@ public class MemoEdit extends AppCompatActivity {
      * 各コントロールの取得（初期化処理）
      */
     private void initViews(){
-        // 現在の起動中に設定された JSON 情報
+        // 現在の起動中に設定された、実行中の各プロパティ
         CurrentProcessingData.JsonCurrentProcessData json = CurrentProcessingData.getJSON(this);
 
         // 画面上部に、メモが紐づく時刻を設定する
         setTopTimeText(json);
+
+        // 画面上部に、メモが紐づく日付を設定する
+        setTopDayText(json);
 
         // "戻る"メニューを設定
         setBackEvent();
@@ -57,23 +60,28 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * 画面上部に、メモが紐づく時刻を設定する
      */
-    private void setTopTimeText(CurrentProcessingData.JsonCurrentProcessData json){
+    private void setTopTimeText(CurrentProcessingData.JsonCurrentProcessData json) {
         // top_time_text に時刻を設定
         TextView topTimeText = findViewById(R.id.top_time_text);
 
         // strTimeが空ではなく、"0"でも無い
-        if(!Common.isEmptyOrNull(json.strTime) && !Common.TIME_ZERO.equals(json.strTime)){
+        if (!Common.isEmptyOrNull(json.strTime) && !Common.TIME_ZERO.equals(json.strTime)) {
             topTimeText.setText(json.strTime);
         } else {
             // 時刻文字列を設定しない場合は、非表示
             topTimeText.setVisibility(View.INVISIBLE);
         }
+    }
 
+    /**
+     * 画面上部に、メモが紐づく日付（年月日・曜日）を設定する
+     */
+    private void setTopDayText(CurrentProcessingData.JsonCurrentProcessData json) {
         // top_day_text に日付（もしくは曜日）を設定
         TextView topDayText = findViewById(R.id.top_day_text);
-        if(!Common.isEmptyOrNull(json.strDate)){
+        if (!Common.isEmptyOrNull(json.strDate)) {
             topDayText.setText(json.strDate);
-        } else if(json.intDayOfWeek != 0){
+        } else if (json.intDayOfWeek != 0) {
             topDayText.setText(Common.ONE_WEEK[json.intDayOfWeek]);
         } else {
             // 設定できる情報が無い場合は、top_day_text を非表示に設定
@@ -182,14 +190,14 @@ public class MemoEdit extends AppCompatActivity {
      * タグに紐づくテキストを、ローカルファイルから取得
      * @return 取得されたメモのテキスト
      */
-    private String getMemoTextByTag(String strTag){
+    private String getMemoTextByTag(String strTag) {
         // strTag が 空なら無視
-        if(!Common.isEmptyOrNull(strTag)) {
+        if (!Common.isEmptyOrNull(strTag)) {
             // ローカルファイルから、保存されているメモリストを取得
             JsonMemoListManager.MemoList memoList = JsonMemoListManager.readMemoList(this);
             for (JsonMemoListManager.A_Memo aMemo : memoList.list) {
                 // タグが一致する情報を取得
-                if (strTag == aMemo.tag) {
+                if (strTag.equals(aMemo.tag)) {
                     return aMemo.memo;
                 }
             }

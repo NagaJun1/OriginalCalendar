@@ -142,4 +142,11 @@ public class CurrentProcessingData {
             System.out.println(e.toString());
         }
     }
+
+    /**
+     * CURRENT_PROCESS_DATA_FILE.json の中の JSON のプロパティを初期状態にリセット
+     */
+    public static void resetCurrentProcessData(Context context){
+        writeSaveFile(context, new JsonCurrentProcessData());
+    }
 }
