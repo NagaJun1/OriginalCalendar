@@ -18,6 +18,8 @@ import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
 import com.example.originalcalendar.JsonManagement.JsonMemoListManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
     /**
      * 画面中央に配置してあるカレンダー
@@ -110,9 +112,10 @@ public class MainActivity extends AppCompatActivity {
         // tag・memo のペアのリストを取得
         JsonMemoListManager.MemoList memo_list_in_file
                 = JsonMemoListManager.readMemoList(this);
-        for (int i = 0; i < memo_list_in_file.list.size(); i++) {
+
+
+        for (Map.Entry<String,String> aMemo: memo_list_in_file.tagAndText.entrySet()){
             // list_in_scroll_view に対して、TextView を新規に生成して追加
-            JsonMemoListManager.A_Memo aMemo = memo_list_in_file.list.get(i);
             TextView newTxtView = createNewTextView(aMemo);
             linearLayout.addView(newTxtView);
         }
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
      * @param aMemo JsonMemoListManager.A_Memoのオブジェクト
      * @return 生成した TextView
      */
-    private TextView createNewTextView(JsonMemoListManager.A_Memo aMemo) {
+    private TextView createNewTextView(Map.Entry<String,String> aMemo) {
         TextView textView = new TextView(this);
         textView.setTextSize(30);
         textView.setBackgroundColor(Color.CYAN);
@@ -173,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
         textView.setLayoutParams(margin);
 
         // 生成した TextView に、取得されたメモを保存
-        textView.setText(aMemo.memo.split("\n")[0]);
+        textView.setText(aMemo.getValue().split("\n")[0]);
 
         // 生成された TextView の押下時に アラーム・メモ編集画面に移行
-        textView.setOnClickListener(v -> onClickMemoElement(aMemo.tag));
+        textView.setOnClickListener(v -> onClickMemoElement(aMemo.getKey()));
         return textView;
     }
 

@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * memo_list.jsonの処理をするクラス
@@ -23,21 +23,10 @@ public class JsonMemoListManager {
      * JSONのメモ一覧の保存先（日付、曜日を含まない）
      */
     public static class MemoList{
-        public List<A_Memo> list = new ArrayList<A_Memo>();
-    }
-
-    /**
-     * メモ一つ分のデータ
-     */
-    public static class A_Memo{
         /**
-         * メモに紐付けるためのタグ
+         * メモに紐づくタグ(Key)とメモの内容(value)のペア
          */
-        public String tag = null;
-        /**
-         * メモの本文
-         */
-        public String memo = null;
+        public Map<String,String> tagAndText = new HashMap<>();
     }
 
     /**
@@ -46,21 +35,12 @@ public class JsonMemoListManager {
      * @param tag メモに紐づくタグ
      * @param text メモ設定する文字列
      */
-    public static void setMemoList(Context context, String tag, String text){
+    public static void setMemoTextWithTag(Context context, String tag, String text){
         // 既存のメモリストの読み込み
         MemoList memoList = readMemoList(context);
-        for(int i = 0;i < memoList.list.size();i++){
-            if(memoList.list.get(i).tag.equals(tag)){
-                // 既存データの中に、重複するデータがある場合は、該当データを削除
-                memoList.list.remove(i);
-                break;
-            }
-        }
-        // 今回追加する情報を生成して、クラスに挿入
-        A_Memo newMemo = new A_Memo();
-        newMemo.tag = tag;
-        newMemo.memo = text;
-        memoList.list.add(newMemo);
+
+        // タグに紐づけて、メモを設定（重複時は上書き）
+        memoList.tagAndText.put(tag,text);
 
         // JSONを文字列として、ファイルに保存する
         try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + MEMO_LIST_FILE)) {

@@ -149,18 +149,17 @@ public class MemoEdit extends AppCompatActivity {
      * @param strDay 日付・曜日のいずれかの文字列
      * @return 取得されたテキスト
      */
-    private String searchTextByDay(String strDay, CurrentProcessingData.JsonCurrentProcessData jsonCurrentProcessData){
+    private String searchTextByDay(String strDay, CurrentProcessingData.JsonCurrentProcessData jsonCurrentProcessData) {
         // ローカルファイルから、カレンダーの保存データを取得
-        JsonCalendarManager.JsonCalendarDate json = JsonCalendarManager.getJson(this);
-
-        // JsonCalendarDate の中の、strDayと合致する情報を取得
-        for(JsonCalendarManager.Day day :json.days){
-            if(day.day.equals(strDay)){
-                for(JsonCalendarManager.ByDay time: day.times){
-                    // 現画面上で処理されている時刻と一致する情報を取得
-                    if(time.time.equals(jsonCurrentProcessData.strTime)){
-                        return time.byTime.memo;
-                    }
+        JsonCalendarManager.JsonCalendarDate jsonCalendarDate = JsonCalendarManager.getJson(this);
+        if (jsonCalendarDate != null) {
+            // 現処理での日付に紐づく各値の取得
+            JsonCalendarManager.ValuesWithDay valuesWithDay = jsonCalendarDate.dayAndValues.get(strDay);
+            if (valuesWithDay != null) {
+                // 現処理での時刻に紐づく各情報の取得
+                JsonCalendarManager.ValuesWithTime valuesWithTime = valuesWithDay.timeAndValues.get(jsonCurrentProcessData.strTime);
+                if (valuesWithTime != null) {
+                    return valuesWithTime.memo;
                 }
             }
         }
@@ -195,12 +194,7 @@ public class MemoEdit extends AppCompatActivity {
         if (!Common.isEmptyOrNull(strTag)) {
             // ローカルファイルから、保存されているメモリストを取得
             JsonMemoListManager.MemoList memoList = JsonMemoListManager.readMemoList(this);
-            for (JsonMemoListManager.A_Memo aMemo : memoList.list) {
-                // タグが一致する情報を取得
-                if (strTag.equals(aMemo.tag)) {
-                    return aMemo.memo;
-                }
-            }
+            return memoList.tagAndText.get(strTag);
         }
         return null;
     }
@@ -257,19 +251,19 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * 現画面上で処理されている内容をローカルファイルに保存する
      */
-    private void saveNowData(String textInNowPage){
+    private void saveNowData(String textInNowPage) {
         // 現行処理で保存されている JSON 情報
         CurrentProcessingData.JsonCurrentProcessData json = CurrentProcessingData.getJSON(this);
 
-        if(!Common.isEmptyOrNull(json.strDate)){
+        if (!Common.isEmptyOrNull(json.strDate)) {
             // 年月日 を使用した場合の処理
-            JsonCalendarManager.setMemoDate(this,json.strDate, json.strTime,textInNowPage);
-        }else if (0 < json.intDayOfWeek){
+            JsonCalendarManager.setMemoDate(this, json.strDate, json.strTime, textInNowPage);
+        } else if (0 < json.intDayOfWeek) {
             // 曜日を使用した場合の処理
-            JsonCalendarManager.setMemoDate(this,String.valueOf(json.intDayOfWeek), json.strTime,textInNowPage);
-        }else{
+            JsonCalendarManager.setMemoDate(this, String.valueOf(json.intDayOfWeek), json.strTime, textInNowPage);
+        } else {
             // 年月日・曜日に依存しないメモを、memo_list.json に保存
-            JsonMemoListManager.setMemoList(this, json.strTag, textInNowPage);
+            JsonMemoListManager.setMemoTextWithTag(this, json.strTag, textInNowPage);
         }
     }
 }

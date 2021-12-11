@@ -3,7 +3,6 @@ package com.example.originalcalendar.JsonManagement;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.example.originalcalendar.Common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -23,29 +22,22 @@ public class CurrentProcessingData {
      * 現行処理上で、使用されるデータ
      */
     public static class JsonCurrentProcessData{
-        /**
-         * 年月日の文字列
-         */
+        /** 年月日の文字列 */
         public String strDate = null;
-        /**
-         * 時刻
-         */
+
+        /** 時刻 */
         public String strTime = null;
-        /**
-         * 曜日
-         */
+
+        /** 曜日 */
         public int intDayOfWeek = 0;
-        /**
-         * メモ編集画面を既に開いているかの判定
-         */
+
+        /** メモ編集画面を既に開いているかの判定 */
         public Boolean alreadyOpenEditMemo = false;
-        /**
-         * アラーム編集画面を既に開いているかの判定
-         */
+
+        /** アラーム編集画面を既に開いているかの判定 */
         public Boolean alreadyOpenEditAlarm = false;
-        /**
-         * メモに紐づくタグ
-         */
+
+        /** メモに紐づくタグ */
         public String strTag = null;
     }
 

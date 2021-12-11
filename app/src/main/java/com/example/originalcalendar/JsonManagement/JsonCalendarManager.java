@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JsonManagerのプロパティとしてのクラスを一覧として保持
@@ -26,43 +26,24 @@ public class JsonCalendarManager {
         /**
          * 日付、曜日に紐づく情報一覧
          */
-        public List<Day> days = new ArrayList<Day>();
-    }
-
-    /**
-     * 一日分の JSON
-     */
-    public static class Day {
-        /**
-         * 日付、もしくは、曜日（1~7）
-         */
-        public String day = null;
-
-        /**
-         * 時刻に紐づく JSON (配列）
-         */
-        public List<ByDay> times = new ArrayList<ByDay>();
+        public
+        Map<String,ValuesWithDay> dayAndValues = new HashMap<>();
     }
 
     /**
      * 日付・曜日に紐づく JSON
      */
-    public static class ByDay {
+    public static class ValuesWithDay {
         /**
-         * 日付（文字列）
+         * 時間に紐づく値
          */
-        public String time = null;
-
-        /**
-         * 時間に紐づく JSON
-         */
-        public ByTime byTime = new ByTime();
+        public Map<String,ValuesWithTime> timeAndValues = new HashMap<>();
     }
 
     /**
      * 時刻に紐づく JSON
      */
-    public static class ByTime {
+    public static class ValuesWithTime {
         /**
          * メモのテキスト情報
          */
@@ -96,58 +77,24 @@ public class JsonCalendarManager {
         // ローカルファイルに保存されているJSONを取得
         JsonCalendarDate json = getJson(context);
 
-        // 日付が一致するJSONの格納先
-        Day dayData = null;
+        // 日付に紐づく各値を取得
+        ValuesWithDay valuesWithDay = json.dayAndValues.get(strDay);
 
-        // 日付に紐づく情報を取得
-        for (int i = 0;i < json.days.size();i++){
-            // 日付・曜日が一致するデータを取得し、json内から削除する
-            if(json.days.get(i).day.equals(strDay)) {
-                dayData = json.days.get(i);
-                json.days.remove(i);
-                break;
-            }
-        }
         // 日付の一致するJSONが取得されなかった場合
-        if(dayData == null) {
-            dayData = new Day();
-            dayData.day = strDay;
+        if(valuesWithDay == null) {
+            valuesWithDay = new ValuesWithDay();
         }
-        // 取得された dayDataに情報を埋め込み -> 処理結果を json に格納
-        Day newDayDate = setMemoDateInDay(dayData, strTime, text);
-        json.days.add(newDayDate);
+
+        // 時刻に紐づけて、メモを挿入
+        ValuesWithTime newValuesWithTime = new ValuesWithTime();
+        newValuesWithTime.memo = text;
+        valuesWithDay.timeAndValues.put(strTime,newValuesWithTime);
+
+        // 元のMap
+        json.dayAndValues.put(strDay,valuesWithDay);
 
         // ファイルに保存
-        saveInFile(context,json);
-    }
-
-    /**
-     * 引数の dayに対し、timeと一致する情報を埋め込む
-     */
-    private static Day setMemoDateInDay(Day day,String time,String text){
-        if(day == null){
-            System.out.println("例外\nDayがnullです\nsetMemoDateInDay()");
-            return null;
-        }
-        // 検索結果の格納先
-        ByDay byDay = null;
-        for(int i = 0; i < day.times.size(); i++){
-            // 時刻が一致する情報はローカル変数に格納し、day.time からは削除（情報が重複するため）
-            if(day.times.get(i).time.equals(time)){
-                byDay = day.times.get(i);
-                day.times.remove(i);
-                break;
-            }
-        }
-        // 検索結果が取得されなかった場合は、新規作成
-        if(byDay == null){
-            byDay = new ByDay();
-        }
-        // 埋め込む情報の書き込み
-        byDay.time = time;
-        byDay.byTime.memo = text;
-        day.times.add(byDay);
-        return day;
+        saveInFile(context, json);
     }
 
     /**
