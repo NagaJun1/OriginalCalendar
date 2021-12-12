@@ -26,7 +26,7 @@ public class MemoEdit extends AppCompatActivity {
     private EditText centerMemoText = null;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_memo);
 
@@ -37,7 +37,7 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * 各コントロールの取得（初期化処理）
      */
-    private void initViews(){
+    private void initViews() {
         // 現在の起動中に設定された、実行中の各プロパティ
         CurrentProcessingData.JsonCurrentProcessData json = CurrentProcessingData.getJSON(this);
 
@@ -65,8 +65,8 @@ public class MemoEdit extends AppCompatActivity {
         TextView topTimeText = findViewById(R.id.top_time_text);
 
         // strTimeが空ではなく、"0"でも無い
-        if (!Common.isEmptyOrNull(json.strTime) && !Common.TIME_ZERO.equals(json.strTime)) {
-            topTimeText.setText(json.strTime);
+        if (!Common.isEmptyOrNull(json.getStrTime()) && !Common.TIME_ZERO.equals(json.getStrTime())) {
+            topTimeText.setText(json.getStrTime());
         } else {
             // 時刻文字列を設定しない場合は、非表示
             topTimeText.setVisibility(View.INVISIBLE);
@@ -79,10 +79,10 @@ public class MemoEdit extends AppCompatActivity {
     private void setTopDayText(CurrentProcessingData.JsonCurrentProcessData json) {
         // top_day_text に日付（もしくは曜日）を設定
         TextView topDayText = findViewById(R.id.top_day_text);
-        if (!Common.isEmptyOrNull(json.strDate)) {
-            topDayText.setText(json.strDate);
-        } else if (json.intDayOfWeek != 0) {
-            topDayText.setText(Common.ONE_WEEK[json.intDayOfWeek]);
+        if (!Common.isEmptyOrNull(json.getStrDate())) {
+            topDayText.setText(json.getStrDate());
+        } else if (json.getIntDayOfWeek() != 0) {
+            topDayText.setText(Common.ONE_WEEK[json.getIntDayOfWeek()]);
         } else {
             // 設定できる情報が無い場合は、top_day_text を非表示に設定
             topDayText.setVisibility(View.INVISIBLE);
@@ -92,7 +92,7 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * back_from_edit_memo に対して、イベントを設定
      */
-    private void setBackEvent(){
+    private void setBackEvent() {
         Button button = findViewById(R.id.back_from_edit_memo);
         button.setOnClickListener(v -> {
             // 現画面を終了して、元の画面に戻る
@@ -103,49 +103,52 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * 保存されたデータ内から、該当するデータを取得
      */
-    private void setMemoText(CurrentProcessingData.JsonCurrentProcessData json){
+    private void setMemoText(CurrentProcessingData.JsonCurrentProcessData json) {
         centerMemoText = findViewById(R.id.center_memo_text);
         centerMemoText.setText(getMemoText(json));
     }
 
     /**
      * ローカルに保存されているテキストを取得する
+     *
      * @return 取得されたテキスト
      */
     private String getMemoText(CurrentProcessingData.JsonCurrentProcessData json) {
         // 日付に紐づくメモを取得
         String textByDay = getMemoTextByDay(json);
-        if(!Common.isEmptyOrNull(textByDay)){
+        if (!Common.isEmptyOrNull(textByDay)) {
             return textByDay;
         }
         // タグに紐づくメモのテキストを取得
-        String textByTag = getMemoTextByTag(json.strTag);
-        if(!Common.isEmptyOrNull(textByTag)){
+        String textByTag = getMemoTextByTag(json.getStrTag());
+        if (!Common.isEmptyOrNull(textByTag)) {
             return textByTag;
         }
         // 新しいタグ文字列を生成（strTagに設定される）
-        createNewTag();
+        createNewTag(json);
         return "";
     }
 
     /**
      * 日付の情報に紐づくメモのテキストを取得
+     *
      * @return 取得したメモのテキスト
      */
-    private String getMemoTextByDay(CurrentProcessingData.JsonCurrentProcessData json){
+    private String getMemoTextByDay(CurrentProcessingData.JsonCurrentProcessData json) {
         String text = null;
-        if(!Common.isEmptyOrNull(json.strDate)){
+        if (!Common.isEmptyOrNull(json.getStrDate())) {
             // 日付に紐づくメモのテキストの取得
-            text = searchTextByDay(json.strDate, json);
-        }else if(0 < json.intDayOfWeek){
+            text = searchTextByDay(json.getStrDate(), json);
+        } else if (0 < json.getIntDayOfWeek()) {
             // 曜日に紐づくメモのテキストの取得
-            text = searchTextByDay(String.valueOf(json.intDayOfWeek), json);
+            text = searchTextByDay(String.valueOf(json.getIntDayOfWeek()), json);
         }
         return text;
     }
 
     /**
      * ローカルファイル内の strDay に紐づくテキストの取得
+     *
      * @param strDay 日付・曜日のいずれかの文字列
      * @return 取得されたテキスト
      */
@@ -157,7 +160,7 @@ public class MemoEdit extends AppCompatActivity {
             JsonCalendarManager.ValuesWithDay valuesWithDay = jsonCalendarDate.dayAndValues.get(strDay);
             if (valuesWithDay != null) {
                 // 現処理での時刻に紐づく各情報の取得
-                JsonCalendarManager.ValuesWithTime valuesWithTime = valuesWithDay.timeAndValues.get(jsonCurrentProcessData.strTime);
+                JsonCalendarManager.ValuesWithTime valuesWithTime = valuesWithDay.timeAndValues.get(jsonCurrentProcessData.getStrTime());
                 if (valuesWithTime != null) {
                     return valuesWithTime.memo;
                 }
@@ -168,8 +171,9 @@ public class MemoEdit extends AppCompatActivity {
 
     /**
      * 新しいタグ文字列を生成（strTagに設定される）
+     * 作成されるタグはユニークな値となる
      */
-    private void createNewTag(){
+    private void createNewTag(CurrentProcessingData.JsonCurrentProcessData currentProcessData) {
         String newTag;
         while (true) {
             // 既存データ内に存在しないタグを生成
@@ -177,9 +181,9 @@ public class MemoEdit extends AppCompatActivity {
             String textByTag = getMemoTextByTag(newTag);
 
             // 既存データ内に存在しないタグが生成された場合は、textByTag が null となる
-            if(textByTag == null){
+            if (textByTag == null) {
                 // 生成したタグは、現行処理の保存ファイルに保存
-                CurrentProcessingData.setTag(this, newTag);
+                currentProcessData.setTag(this, newTag);
                 return;
             }
         }
@@ -187,6 +191,7 @@ public class MemoEdit extends AppCompatActivity {
 
     /**
      * タグに紐づくテキストを、ローカルファイルから取得
+     *
      * @return 取得されたメモのテキスト
      */
     private String getMemoTextByTag(String strTag) {
@@ -202,19 +207,19 @@ public class MemoEdit extends AppCompatActivity {
     /**
      * アラーム編集画面へ遷移するボタンの処理の追加
      */
-    private void setGoEditAlarm(CurrentProcessingData.JsonCurrentProcessData json){
+    private void setGoEditAlarm(CurrentProcessingData.JsonCurrentProcessData json) {
         Button btn = findViewById(R.id.go_edit_alarm);
 
         // 既にメモ編集画面を開いている状態の場合は、ボタンを非表示に設定する
-        if(json.alreadyOpenEditAlarm){
+        if (json.getAlreadyOpenEditAlarm()) {
             btn.setVisibility(View.INVISIBLE);
-        }else {
+        } else {
             // アラーム編集画面への画面遷移処理の追加
-            btn.setOnClickListener(v ->{
-                startActivity(new Intent(this,AlarmEdit.class));
+            btn.setOnClickListener(v -> {
+                startActivity(new Intent(this, AlarmEdit.class));
 
                 // メモ編集画面が開かれた状態であることのフラグを設定
-                CurrentProcessingData.setOpenEditMemo(this,true);
+                json.setOpenEditMemo(this, true);
             });
         }
     }
@@ -223,7 +228,7 @@ public class MemoEdit extends AppCompatActivity {
      * 画面復帰時（アラーム編集画面から戻ってきたとき）
      */
     @Override
-    protected void onRestart(){
+    protected void onRestart() {
         super.onRestart();
 
         // アラーム編集画面で編集された時刻の取得
@@ -240,8 +245,8 @@ public class MemoEdit extends AppCompatActivity {
 
         // centerMemoText内のテキストを取得
         String text = centerMemoText.getText().toString();
-        if(Common.isEmptyOrNull(text)){
-            Toast.makeText(this,"保存を実行しませんでした",Toast.LENGTH_SHORT).show();
+        if (Common.isEmptyOrNull(text)) {
+            Toast.makeText(this, "保存を実行しませんでした", Toast.LENGTH_SHORT).show();
         } else {
             // 取得したテキストに記載があるのであれば、保存する
             saveNowData(text);
@@ -253,17 +258,20 @@ public class MemoEdit extends AppCompatActivity {
      */
     private void saveNowData(String textInNowPage) {
         // 現行処理で保存されている JSON 情報
-        CurrentProcessingData.JsonCurrentProcessData json = CurrentProcessingData.getJSON(this);
+        CurrentProcessingData.JsonCurrentProcessData currentData = CurrentProcessingData.getJSON(this);
 
-        if (!Common.isEmptyOrNull(json.strDate)) {
-            // 年月日 を使用した場合の処理
-            JsonCalendarManager.setMemoDate(this, json.strDate, json.strTime, textInNowPage);
-        } else if (0 < json.intDayOfWeek) {
-            // 曜日を使用した場合の処理
-            JsonCalendarManager.setMemoDate(this, String.valueOf(json.intDayOfWeek), json.strTime, textInNowPage);
+        // 日付（年月日 or 曜日）の取得
+        String strDay = currentData.strDay();
+        if (!Common.isEmptyOrNull(strDay)) {
+            JsonCalendarManager.JsonCalendarDate calendarDate = JsonCalendarManager.getJson(this);
+
+            // 日付・時刻に紐づく情報を取得し、テキストの部分だけ修正
+            JsonCalendarManager.ValuesWithTime valuesWithTime = calendarDate.getValuesWithTime(currentData.strDay(), currentData.getStrTime());
+            valuesWithTime.memo = textInNowPage;
+            calendarDate.setValuesWithTime(this, currentData.getStrDate(), currentData.getStrTime(), valuesWithTime);
         } else {
             // 年月日・曜日に依存しないメモを、memo_list.json に保存
-            JsonMemoListManager.setMemoTextWithTag(this, json.strTag, textInNowPage);
+            JsonMemoListManager.readMemoList(this).setMemoTextWithTag(this, currentData.getStrTag(), textInNowPage);
         }
     }
 }

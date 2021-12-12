@@ -27,28 +27,25 @@ public class JsonMemoListManager {
          * メモに紐づくタグ(Key)とメモの内容(value)のペア
          */
         public Map<String,String> tagAndText = new HashMap<>();
-    }
 
-    /**
-     * memo_list.json に情報を保存
-     * @param context 処理画面のContext
-     * @param tag メモに紐づくタグ
-     * @param text メモ設定する文字列
-     */
-    public static void setMemoTextWithTag(Context context, String tag, String text){
-        // 既存のメモリストの読み込み
-        MemoList memoList = readMemoList(context);
+        /**
+         * memo_list.json に情報を保存
+         * @param context 処理画面のContext
+         * @param tag メモに紐づくタグ
+         * @param text メモ設定する文字列
+         */
+        public void setMemoTextWithTag(Context context, String tag, String text){
+            // タグに紐づけて、メモを設定（重複時は上書き）
+            tagAndText.put(tag,text);
 
-        // タグに紐づけて、メモを設定（重複時は上書き）
-        memoList.tagAndText.put(tag,text);
-
-        // JSONを文字列として、ファイルに保存する
-        try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + MEMO_LIST_FILE)) {
-            ObjectMapper mapper = new ObjectMapper();
-            writer.write(mapper.writeValueAsString(memoList));
-        } catch (Exception e) {
-            Toast.makeText(context, "メモの書き込みに失敗しました。", Toast.LENGTH_SHORT).show();
-            System.out.println(e.toString());
+            // JSONを文字列として、ファイルに保存する
+            try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + MEMO_LIST_FILE)) {
+                ObjectMapper mapper = new ObjectMapper();
+                writer.write(mapper.writeValueAsString(this));
+            } catch (Exception e) {
+                Toast.makeText(context, "error:setMemoTextWithTag()", Toast.LENGTH_SHORT).show();
+                System.out.println(e.toString());
+            }
         }
     }
 
@@ -57,7 +54,7 @@ public class JsonMemoListManager {
      * @param context 処理実行画面のContext
      * @return 取得された List<JsonProperty.A_Memo>
      */
-    public static MemoList readMemoList(Context context){
+    public static MemoList readMemoList(Context context) {
         try {
             String dirPath = context.getFilesDir().getAbsolutePath();
             File file = new File(dirPath + "\\" + MEMO_LIST_FILE);
@@ -68,8 +65,8 @@ public class JsonMemoListManager {
                 ObjectMapper mapper = new ObjectMapper();
                 return mapper.readValue(file, MemoList.class);
             }
-        }catch (Exception e){
-            Toast.makeText(context,"ファイル読み込みに失敗しました\n"+MEMO_LIST_FILE,Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(context, "error:file load > " + MEMO_LIST_FILE, Toast.LENGTH_SHORT).show();
             System.out.println(e.toString());
         }
         return new MemoList();
