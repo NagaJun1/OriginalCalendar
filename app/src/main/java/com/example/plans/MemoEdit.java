@@ -1,4 +1,4 @@
-package com.example.originalcalendar;
+package com.example.plans;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,9 +10,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
-import com.example.originalcalendar.JsonManagement.JsonCalendarManager;
-import com.example.originalcalendar.JsonManagement.JsonMemoListManager;
+import com.example.plans.JsonManagement.CurrentProcessingData;
+import com.example.plans.JsonManagement.JsonCalendarManager;
+import com.example.plans.JsonManagement.JsonMemoListManager;
 
 import java.util.UUID;
 
@@ -65,7 +65,7 @@ public class MemoEdit extends AppCompatActivity {
         TextView topTimeText = findViewById(R.id.top_time_text);
 
         // strTimeが空ではなく、"0"でも無い
-        if (!Common.isEmptyOrNull(json.getStrTime()) && !Common.TIME_ZERO.equals(json.getStrTime())) {
+        if (!Common.isEmptyOrNull(json.getStrTime())) {
             topTimeText.setText(json.getStrTime());
         } else {
             // 時刻文字列を設定しない場合は、非表示
@@ -237,11 +237,11 @@ public class MemoEdit extends AppCompatActivity {
     }
 
     /**
-     * onStop()発生時に、編集内容を保存する
+     * 編集内容を保存する
      */
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
 
         // centerMemoText内のテキストを取得
         String text = centerMemoText.getText().toString();

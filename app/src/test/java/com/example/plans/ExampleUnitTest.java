@@ -1,4 +1,4 @@
-package com.example.originalcalendar;
+package com.example.plans;
 
 import static org.junit.Assert.assertEquals;
 

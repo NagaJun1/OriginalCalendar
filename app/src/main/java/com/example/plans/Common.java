@@ -1,4 +1,4 @@
-package com.example.originalcalendar;
+package com.example.plans;
 
 public class Common {
     /**
@@ -20,11 +20,6 @@ public class Common {
      * 一週間分の曜日の日本語配列
      */
     public static final String[] ONE_WEEK = {"error", "日", "月", "火", "水", "木", "金", "土"};
-
-    /**
-     * 時刻に設定する 0 の固定値
-     */
-    public static final String TIME_ZERO = "0";
 
     /**
      * 引数の文字列が null、もしくは空か
@@ -147,22 +142,29 @@ public class Common {
     }
 
     /**
+     * 空の文字列
+     */
+    private static final String STRING_EMPTY = "";
+
+    /**
      * 引数の文字列から、前方十文字だけを取得
      * （改行が含まれる場合は、それを切る）
      *
-     * @param text 処理を行う文字列
+     * @param strText 処理を行う文字列
      * @return 処理後の文字列
      */
-    public static String getTopTenChar(String text) {
-        if (!isEmptyOrNull(text)) {
+    public static String getTopTenChar(String strText) {
+        if (isEmptyOrNull(strText)) {
+            return STRING_EMPTY;
+        } else {
             // 改行除去
-            text = text.split("\n")[0];
+            String newText = strText.split("\n")[0];
 
             // 10文字を超える場合は、超過分を除去
-            if (10 < text.length()) {
-                text = text.substring(0, 10);
+            if (10 < newText.length()) {
+                newText = newText.substring(0, 10);
             }
+            return newText;
         }
-        return text;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.originalcalendar.JsonManagement;
+package com.example.plans.JsonManagement;
 
 import android.content.Context;
 import android.widget.Toast;

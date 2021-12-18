@@ -1,4 +1,4 @@
-package com.example.originalcalendar;
+package com.example.plans;
 
 import android.content.Intent;
 import android.os.Build;
@@ -13,8 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
-import com.example.originalcalendar.JsonManagement.JsonCalendarManager;
+import com.example.plans.JsonManagement.CurrentProcessingData;
+import com.example.plans.JsonManagement.JsonCalendarManager;
 
 /**
  * アラーム編集画面に対応した処理
@@ -213,12 +213,12 @@ public class AlarmEdit extends AppCompatActivity {
     }
 
     /**
-     * onStop()発生時に、編集内容を保存する
+     * 編集内容を保存する
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
 
         // 現行処理の情報の取得（時刻情報が変更前の情報の取得）
         CurrentProcessingData.JsonCurrentProcessData currentData = CurrentProcessingData.getJSON(this);

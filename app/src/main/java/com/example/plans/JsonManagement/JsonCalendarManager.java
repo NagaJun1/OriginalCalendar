@@ -1,9 +1,9 @@
-package com.example.originalcalendar.JsonManagement;
+package com.example.plans.JsonManagement;
 
 import android.content.Context;
 import android.widget.Toast;
 
-import com.example.originalcalendar.Common;
+import com.example.plans.Common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;

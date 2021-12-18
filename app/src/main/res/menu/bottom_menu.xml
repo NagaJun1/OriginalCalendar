@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_alarm"
+        android:id="@+id/navigation_plans_list"
         android:icon="@drawable/baseline_alarm_on_24"
-        android:title="@string/alarm" />
+        android:title="@string/plans_list" />
 
     <item
         android:id="@+id/navigation_calendar"

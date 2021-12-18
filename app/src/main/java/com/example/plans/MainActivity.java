@@ -1,4 +1,4 @@
-package com.example.originalcalendar;
+package com.example.plans;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -15,11 +15,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.originalcalendar.JsonManagement.CurrentProcessingData;
-import com.example.originalcalendar.JsonManagement.JsonCalendarManager;
-import com.example.originalcalendar.JsonManagement.JsonMemoListManager;
+import com.example.plans.JsonManagement.CurrentProcessingData;
+import com.example.plans.JsonManagement.JsonCalendarManager;
+import com.example.plans.JsonManagement.JsonMemoListManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * メモ一覧、アラーム一覧を表示するための領域の取得
      */
-    private RelativeLayout getListLayout() {
+    private RelativeLayout getIncludedListLayout() {
         RelativeLayout layout = findViewById(R.id.included_list_layout);
         if (layout == null) {
             Toast.makeText(this, Common.NOT_FOUND_VIEW + " included_list_layout", Toast.LENGTH_LONG).show();
@@ -57,18 +58,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * メモ・アラーム一覧の格納先を取得
+     * メモ・予定一覧の格納先を取得
      */
-    private LinearLayout getListInScrollView() {
-        LinearLayout linearLayout = findViewById(R.id.list_in_scroll_view);
+    private LinearLayout getListInScrollViewForMemo() {
+        LinearLayout linearLayout = findViewById(R.id.list_in_scroll_view_for_memo);
         if (linearLayout == null) {
-            Toast.makeText(this, Common.NOT_FOUND_VIEW + " list_in_scroll_view", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Common.NOT_FOUND_VIEW + " list_in_scroll_view_for_memo", Toast.LENGTH_LONG).show();
+        } else {
+            // 取得時に、子要素を全削除
+            linearLayout.removeAllViews();
         }
         return linearLayout;
     }
 
     /**
-     * 新規作成」ボタンの取得
+     * メモ・予定一覧の格納先を取得
+     */
+    private LinearLayout getListInScrollViewForPlans() {
+        LinearLayout linearLayout = findViewById(R.id.list_in_scroll_view_for_plans);
+        if (linearLayout == null) {
+            Toast.makeText(this, Common.NOT_FOUND_VIEW + " list_in_scroll_view_for_plans", Toast.LENGTH_LONG).show();
+        } else {
+            // 取得時に、子要素を全削除
+            linearLayout.removeAllViews();
+        }
+        return linearLayout;
+    }
+
+    /**
+     * 「新規作成」ボタンの取得
      */
     private Button getBtnAddInList() {
         Button btn = findViewById(R.id.btn_add_in_list);
@@ -85,11 +103,16 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
-        // 各コントロールの取得
-        initViews();
+            // 各コントロールの取得
+            initViews();
+        }catch (Exception e){
+            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>original calendar 起動失敗");
+            System.out.println(e.toString());
+        }
     }
 
     /**
@@ -111,52 +134,99 @@ public class MainActivity extends AppCompatActivity {
     private void setNavViewEvent() {
         getBottomNavigationView().setOnItemSelectedListener(item -> {
             // カレンダーの表示状態の設定（ナビゲーションのカレンダーを押下した場合にだけ、表示状態にする）
-            setCalendarVisible(R.id.navigation_calendar == item.getItemId());
-
-            if (item.getItemId() == R.id.navigation_alarm) {
+            if (R.id.navigation_calendar == item.getItemId()) {
+                showCalendar();
+            } else if (item.getItemId() == R.id.navigation_plans_list) {
                 // アラーム一覧を表示
-                setAlarmList();
+                setPlansList();
             } else if (item.getItemId() == R.id.navigation_memo) {
                 // メモ一覧を表示
-                setMemoList();
+                LinearLayout linearLayout = showMemoList();
+                setMemoList(linearLayout);
             }
             return false;
         });
     }
 
     /**
+     * 予定一覧の表示
+     * @return 予定一覧の格納先
+     */
+    private LinearLayout showMemoList() {
+        // カレンダーをに非変更
+        getCalendarView().setVisibility(View.INVISIBLE);
+
+        // メモ・アラーム一覧の表示領域を表示状態に
+        getIncludedListLayout().setVisibility(View.VISIBLE);
+
+        // 予定一覧を非表示に変更
+        getListInScrollViewForPlans().setVisibility(View.INVISIBLE);
+
+        // メモ一覧を表示状態に変更
+        LinearLayout linearLayoutForPlans = getListInScrollViewForMemo();
+        linearLayoutForPlans.setVisibility(View.VISIBLE);
+        return linearLayoutForPlans;
+    }
+
+    /**
+     * 予定一覧の表示
+     * @return 予定一覧の格納先
+     */
+    private LinearLayout showPlansList() {
+        // カレンダーをに非変更
+        getCalendarView().setVisibility(View.INVISIBLE);
+
+        // メモ・アラーム一覧の表示領域を表示状態に
+        getIncludedListLayout().setVisibility(View.VISIBLE);
+
+        // メモ一覧を非表示に変更
+        getListInScrollViewForMemo().setVisibility(View.INVISIBLE);
+
+        // 予定一覧を表示状態に変更
+        LinearLayout linearLayoutForPlans = getListInScrollViewForPlans();
+        linearLayoutForPlans.setVisibility(View.VISIBLE);
+        return linearLayoutForPlans;
+    }
+
+    /**
      * アラーム一覧の表示
      */
-    private void setAlarmList() {
-        setCalendarVisible(false);
+    private void setPlansList() {
+        // 予定一覧を表示状態に変更し、予定一覧の LinearLayout を取得
+        LinearLayout linearLayout = showPlansList();
+
+        //「新規作成」ボタンの設定（日付は、処理の実行日を設定する）
+        LocalDateTime localTime = null;
+        String strDate = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            localTime = LocalDateTime.now();
+            strDate = Common.getStrDate(localTime.getYear(), localTime.getMonth().getValue(), localTime.getDayOfMonth());
+        } else {
+            Toast.makeText(this, "fail get day", Toast.LENGTH_SHORT).show();
+        }
+        setNewAlarmButton(strDate);
+
+        // 予定一覧に、JSON内の予定情報一覧を設定
+        setAllPlansList(linearLayout);
     }
 
     /**
      * メモ一覧の表示
      */
-    private void setMemoList() {
-        // メモ一覧を表示状態に変更
-        setCalendarVisible(false);
-
+    private void setMemoList(LinearLayout linearLayout) {
         //「新規作成」ボタンの設定
         setNewMemoButton();
 
         // メモ一覧の格納先を取得
-        LinearLayout linearLayout = getListInScrollView();
-        if (linearLayout != null) {
-            // 子要素を全部削除
-            linearLayout.removeAllViews();
-
-            // tag・memo のペアのリストを取得
-            JsonMemoListManager.MemoList memo_list_in_file = JsonMemoListManager.readMemoList(this);
-            for (Map.Entry<String, String> aMemo : memo_list_in_file.tagAndText.entrySet()) {
-                // list_in_scroll_view に対して、TextView を新規に生成して追加
-                TextView newTxtView = createNewTextViewForMemo(aMemo);
-                linearLayout.addView(newTxtView);
-            }
-            // listLayout の高さを調整
-            fixHeightOfListLayout();
+        // tag・memo のペアのリストを取得
+        JsonMemoListManager.MemoList memo_list_in_file = JsonMemoListManager.readMemoList(this);
+        for (Map.Entry<String, String> aMemo : memo_list_in_file.tagAndText.entrySet()) {
+            // list_in_scroll_view に対して、TextView を新規に生成して追加
+            TextView newTxtView = createNewTextViewForMemo(aMemo);
+            linearLayout.addView(newTxtView);
         }
+        // listLayout の高さを調整
+        fixHeightOfListLayout();
     }
 
     /**
@@ -173,9 +243,9 @@ public class MainActivity extends AppCompatActivity {
             alreadyExecuted = true;
 
             // listLayout の高さを調整
-            RelativeLayout listLayout = getListLayout();
+            RelativeLayout listLayout = getIncludedListLayout();
             ViewGroup.LayoutParams layoutParams = listLayout.getLayoutParams();
-            layoutParams.height = listLayout.getHeight() - getBottomNavigationView().getHeight() - 10;
+            layoutParams.height = listLayout.getHeight() - getBottomNavigationView().getHeight() - 20;
             listLayout.setLayoutParams(layoutParams);
         }
     }
@@ -214,13 +284,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * メモ・アラーム一覧内に追加する TextViewのデフォルトを生成
+     * メモ・予定一覧内に追加する TextViewのデフォルトを生成
      *
      * @return TextView
      */
     private TextView createDefaultTextViewInList() {
         TextView textView = new TextView(this);
-        textView.setTextSize(30);
+        textView.setTextSize(20);
         textView.setBackgroundColor(Color.CYAN);
 
         // TextViewのレイアウトの設定（Margin と図形の幅、高さを設定）
@@ -249,16 +319,14 @@ public class MainActivity extends AppCompatActivity {
      * カレンダーの Visibility を変更
      * （center_layout の Visibility はカレンダーと対になる様に設定）
      */
-    private void setCalendarVisible(boolean visible) {
+    private void showCalendar() {
+        // カレンダーを表示状態に変更
         CalendarView calendarView = getCalendarView();
-        RelativeLayout listLayout = getListLayout();
-        if (visible) {
-            calendarView.setVisibility(View.VISIBLE);
-            listLayout.setVisibility(View.INVISIBLE);
-        } else {
-            calendarView.setVisibility(View.INVISIBLE);
-            listLayout.setVisibility(View.VISIBLE);
-        }
+        calendarView.setVisibility(View.VISIBLE);
+
+        // メモ・アラーム一覧は非表示
+        RelativeLayout listLayout = getIncludedListLayout();
+        listLayout.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -267,12 +335,19 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setCalendarEvent() {
         try {
+            // カレンダー押下時のイベントを追加
             getCalendarView().setOnDateChangeListener((c, year, month, day) -> {
                 // month（月）は、0~11 で処理されるため、+1する
                 String strDate = Common.getStrDate(year, month + 1, day);
 
+                // 予定一覧を表示状態に変更
+                LinearLayout linearLayout = showPlansList();
+
+                //「新規作成」ボタンの設定
+                setNewAlarmButton(strDate);
+
                 // 日付に紐づくアラーム一覧を表示
-                setAlarmListInDay(strDate);
+                setPlansListInDay(linearLayout, strDate);
             });
         } catch (Exception e) {
             System.out.println(">>>>>>>>>>>>>>>error");
@@ -281,54 +356,60 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 日付に紐づくアラーム一覧の表示
+     * 日付に紐づく予定一覧の表示設定
      *
+     * @param linearLayout 予定一覧の LinearLayout
      * @param strDate アラーム一覧に表示する日付
      */
-    private void setAlarmListInDay(String strDate) {
-        // 一覧を表示状態に変更
-        setCalendarVisible(false);
-
-        //「新規作成」ボタンの設定
-        setNewAlarmButton(strDate);
-
-        // メモ一覧の格納先を取得
-        LinearLayout linearLayout = getListInScrollView();
-        if (linearLayout != null) {
-            // 子要素を全部削除
-            linearLayout.removeAllViews();
-
-            // カレンダーに紐づく JSONを取得
-            JsonCalendarManager.JsonCalendarDate calendarDate = JsonCalendarManager.getJson(this);
-            if (calendarDate != null) {
-                // 日付に紐づく範囲の各値を取得
-                JsonCalendarManager.ValuesWithDay valuesWithDay = calendarDate.dayAndValues.get(strDate);
-                if (valuesWithDay != null) {
-                    // 時刻の一覧を画面に表示
-                    for (Map.Entry<String, JsonCalendarManager.ValuesWithTime> values : valuesWithDay.timeAndValues.entrySet()) {
-                        // list_in_scroll_view に対して、TextView を新規に生成して追加
-                        TextView newTxtView = createAlarmTextView(strDate, values.getKey(), values.getValue());
-                        linearLayout.addView(newTxtView);
-                    }
+    private void setPlansListInDay(LinearLayout linearLayout, String strDate) {
+        // カレンダーに紐づく JSONを取得
+        JsonCalendarManager.JsonCalendarDate calendarDate = JsonCalendarManager.getJson(this);
+        if (calendarDate != null) {
+            // 日付に紐づく範囲の各値を取得
+            JsonCalendarManager.ValuesWithDay valuesWithDay = calendarDate.dayAndValues.get(strDate);
+            if (valuesWithDay != null) {
+                // 時刻の一覧を画面に表示
+                for (Map.Entry<String, JsonCalendarManager.ValuesWithTime> values : valuesWithDay.timeAndValues.entrySet()) {
+                    // list_in_scroll_view に対して、TextView を新規に生成して追加
+                    setPlanTxtViewInList(linearLayout, strDate, values.getKey(), values.getValue().memo);
                 }
             }
-            // listLayout の高さを調整
-            fixHeightOfListLayout();
         }
+        // listLayout の高さを調整
+        fixHeightOfListLayout();
+    }
+
+    /**
+     * 予定一覧に全予定を表示
+     */
+    private void setAllPlansList(LinearLayout linearLayout) {
+        // カレンダーに紐づく JSONを取得
+        JsonCalendarManager.JsonCalendarDate calendarDate = JsonCalendarManager.getJson(this);
+        if (calendarDate != null) {
+            for (Map.Entry<String, JsonCalendarManager.ValuesWithDay> day_value : calendarDate.dayAndValues.entrySet()) {
+                for (Map.Entry<String, JsonCalendarManager.ValuesWithTime> time_value : day_value.getValue().timeAndValues.entrySet()) {
+                    // 予定一覧に予定を追加
+                    setPlanTxtViewInList(linearLayout, day_value.getKey(), time_value.getKey(), time_value.getValue().memo);
+                }
+            }
+        }
+        // listLayout の高さを調整
+        fixHeightOfListLayout();
     }
 
     /**
      * アラーム一覧に追加する TextViewの生成
-     * @param strDate 年月日
-     * @param strTime 時刻
-     * @param valuesWithTime 時刻と紐づく各データ
-     * @return アラーム一覧に追加するための TextView
+     *
+     * @param linearLayout TextViewの挿入先
+     * @param strDate      年月日
+     * @param strTime      時刻
+     * @param strMemo      時刻と紐づくメモ
      */
-    private TextView createAlarmTextView(String strDate, String strTime, JsonCalendarManager.ValuesWithTime valuesWithTime) {
+    private void setPlanTxtViewInList(LinearLayout linearLayout, String strDate, String strTime, String strMemo) {
         TextView view = createDefaultTextViewInList();
 
         // TextViewには、時刻とメモ内容の一部を表示
-        String strTxt = strTime + " " + Common.getTopTenChar(valuesWithTime.memo);
+        String strTxt = "[day " + strDate + " _Time " + strTime + "] " + Common.getTopTenChar(strMemo);
         view.setText(strTxt);
 
         // 押下時は、アラーム編集画面へと遷移する
@@ -336,22 +417,23 @@ public class MainActivity extends AppCompatActivity {
             // 現処理で使用している値を設定（無関係の設定値の初期化）
             CurrentProcessingData.JsonCurrentProcessData currentProcessData = new CurrentProcessingData.JsonCurrentProcessData();
             currentProcessData.setDate(this, strDate);
-            currentProcessData.setTime (this, strTime);
+            currentProcessData.setTime(this, strTime);
 
             // アラーム編集画面へ遷移
             startActivity(new Intent(this, AlarmEdit.class));
         });
-        return view;
+        linearLayout.addView(view);
     }
 
     /**
      * アラームの「新規作成」ボタンのイベント設定
+     *
      * @param strDate 現処理での日付情報
      */
     private void setNewAlarmButton(String strDate) {
         Button btn = getBtnAddInList();
 
-        // ボタン押下時に、メモ編集画面に遷移
+        // ボタン押下時に、アラーム編集画面に遷移
         btn.setOnClickListener(v -> {
             // 現画面で指定されている日付を設定
             CurrentProcessingData.JsonCurrentProcessData currentProcessData = new CurrentProcessingData.JsonCurrentProcessData();
@@ -366,6 +448,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
 
-        setMemoList();
+        // メモ一覧の最新化
+        LinearLayout forMemo = getListInScrollViewForMemo();
+        if (forMemo.getVisibility() == View.VISIBLE) {
+            setMemoList(forMemo);
+        }
+
+        // 予定一覧の最新化
+        LinearLayout forPlans = getListInScrollViewForPlans();
+        if (forPlans.getVisibility() == View.VISIBLE) {
+            setAllPlansList(forPlans);
+        }
     }
 }
