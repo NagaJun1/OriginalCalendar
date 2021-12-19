@@ -1,10 +1,23 @@
 package com.example.plans;
 
+import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+
+import java.time.LocalDateTime;
+import java.util.Calendar;
+
 public class Common {
     /**
      * not found view のテキスト
      */
     public static final String NOT_FOUND_VIEW = "not found view";
+
+    /**
+     * 通知のチャネルID
+     */
+    public static final String CHANNEL_ID = "CHANNEL_PLANS";
 
     /**
      * コンマの固定文字列
@@ -166,5 +179,74 @@ public class Common {
             }
             return newText;
         }
+    }
+
+    /**
+     * calendar.getTimeInMillis()の実行
+     *
+     * @param strDay  年月日を結合した文字列
+     * @param strTime 時:分を結合した文字列
+     * @return calendar.getTimeInMillis()の結果
+     */
+    public static long getTimeInMillis(String strDay, String strTime) {
+        // todo バグっている 後日修正
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(
+                getYearInDate(strDay),
+                getMonthInDate(strDay),
+                getDayInDate(strDay),
+                getHourInTime(strTime),
+                getMinutesInTime(strTime),
+                0
+        );
+        return calendar.getTimeInMillis();
+    }
+
+    /**
+     * アラーム処理に追加するリクエストコードの生成
+     *
+     * @param strDay  年月日を結合した文字列
+     * @param strTime 時:分を結合した文字列
+     * @return リクエストコード
+     */
+    public static int getRequestCode(String strDay, String strTime) {
+        return getYearInDate(strDay) * 10 ^ 8
+                + getMonthInDate(strDay) * 10 ^ 6
+                + getDayInDate(strDay) * 10 ^ 4
+                + getHourInTime(strTime) * 10 ^ 2
+                + getMinutesInTime(strTime);
+    }
+
+    /**
+     * 通知用のチャネル作成
+     * （Android 8.0 以上では、チャネルがないと、通知できない）
+     */
+    @SuppressLint("NewApi")
+    public static void createNotificationChannel(Context context) {
+        // 端末に対して、チャネルを追加
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel channel = notificationManager.getNotificationChannel(CHANNEL_ID);
+        if (channel == null) {
+            channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    /**
+     * 今日の日付の取得
+     */
+    @SuppressLint("NewApi")
+    public static String getToday() {
+        LocalDateTime localTime = LocalDateTime.now();
+        return Common.getStrDate(localTime.getYear(), localTime.getMonth().getValue(), localTime.getDayOfMonth());
+    }
+
+    /**
+     * 現在時刻を取得
+     */
+    @SuppressLint("NewApi")
+    public static String getNowTime() {
+        LocalDateTime localTime = LocalDateTime.now();
+        return Common.getStrTime(localTime.getHour(), localTime.getMinute());
     }
 }

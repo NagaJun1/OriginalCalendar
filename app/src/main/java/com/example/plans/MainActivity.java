@@ -20,7 +20,6 @@ import com.example.plans.JsonManagement.JsonCalendarManager;
 import com.example.plans.JsonManagement.JsonMemoListManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -109,8 +108,11 @@ public class MainActivity extends AppCompatActivity {
 
             // 各コントロールの取得
             initViews();
-        }catch (Exception e){
-            System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>original calendar 起動失敗");
+
+            // 通知用のチャネルを作成
+            Common.createNotificationChannel(getApplicationContext());
+        } catch (Exception e) {
+            System.out.println(">>>>> app plans 起動失敗 >>>>>");
             System.out.println(e.toString());
         }
     }
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 予定一覧の表示
+     *
      * @return 予定一覧の格納先
      */
     private LinearLayout showMemoList() {
@@ -170,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 予定一覧の表示
+     *
      * @return 予定一覧の格納先
      */
     private LinearLayout showPlansList() {
@@ -191,20 +195,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * アラーム一覧の表示
      */
+    @SuppressLint("NewApi")
     private void setPlansList() {
         // 予定一覧を表示状態に変更し、予定一覧の LinearLayout を取得
         LinearLayout linearLayout = showPlansList();
 
         //「新規作成」ボタンの設定（日付は、処理の実行日を設定する）
-        LocalDateTime localTime = null;
-        String strDate = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            localTime = LocalDateTime.now();
-            strDate = Common.getStrDate(localTime.getYear(), localTime.getMonth().getValue(), localTime.getDayOfMonth());
-        } else {
-            Toast.makeText(this, "fail get day", Toast.LENGTH_SHORT).show();
-        }
-        setNewAlarmButton(strDate);
+        setNewAlarmButton(Common.getToday());
 
         // 予定一覧に、JSON内の予定情報一覧を設定
         setAllPlansList(linearLayout);
@@ -359,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
      * 日付に紐づく予定一覧の表示設定
      *
      * @param linearLayout 予定一覧の LinearLayout
-     * @param strDate アラーム一覧に表示する日付
+     * @param strDate      アラーム一覧に表示する日付
      */
     private void setPlansListInDay(LinearLayout linearLayout, String strDate) {
         // カレンダーに紐づく JSONを取得

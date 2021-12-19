@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.example.plans.Common;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -32,9 +33,9 @@ public class JsonCalendarManager {
         /**
          * 保存データの書き換え（全て上書き）
          *
-         * @param context      処理の実行画面のContext
+         * @param context 処理の実行画面のContext
          */
-        private void saveInFile(Context context  ) {
+        private void saveInFile(Context context) {
             try (FileWriter writer = new FileWriter(context.getFilesDir().getAbsolutePath() + "\\" + CALENDAR_DATA_FILE)) {
                 ObjectMapper mapper = new ObjectMapper();
                 String strJson = mapper.writeValueAsString(this);
@@ -63,13 +64,13 @@ public class JsonCalendarManager {
          *
          * @return この処理で削除された ValuesWithTime
          */
-        public ValuesWithTime deleteTime(Context context,String strDay, String strTime) {
+        public ValuesWithTime deleteTime(Context context, String strDay, String strTime) {
             if (!Common.isEmptyOrNull(strDay) && !Common.isEmptyOrNull(strTime)) {
                 ValuesWithDay valuesWithDay = dayAndValues.get(strDay);
                 if (valuesWithDay != null) {
                     // 時刻に紐づく各値を削除（削除された各値を取得）
                     ValuesWithTime valuesWithTime = valuesWithDay.timeAndValues.remove(strTime);
-                    if(valuesWithTime!=null) {
+                    if (valuesWithTime != null) {
                         // 削除後の結果を再格納
                         // （get()で参照できているとしたら、無意味な処理）
                         dayAndValues.put(strDay, valuesWithDay);
@@ -112,6 +113,20 @@ public class JsonCalendarManager {
             // ファイルに保存
             saveInFile(context);
         }
+
+
+        /**
+         * 現在時刻に紐づく ValuesWithTimeを取得する
+         */
+        @JsonIgnore
+        public ValuesWithTime getNowValueWithTime() {
+            // 今日の日付でデータを取得
+            ValuesWithDay valuesWithDay = dayAndValues.get(Common.getToday());
+            if (valuesWithDay != null) {
+                return valuesWithDay.getValuesWithTime(Common.getNowTime());
+            }
+            return new ValuesWithTime();
+        }
     }
 
     /**
@@ -126,6 +141,7 @@ public class JsonCalendarManager {
         /**
          * 日付に紐づく ValuesWithTime を取得
          */
+        @JsonIgnore
         private ValuesWithTime getValuesWithTime(String strTime) {
             ValuesWithTime valuesWithTime = timeAndValues.get(strTime);
             if (valuesWithTime == null) {
@@ -156,7 +172,6 @@ public class JsonCalendarManager {
          */
         public boolean flgRepeat = false;
     }
-
 
     /**
      * 保存データの読み込み（全て読み込み）

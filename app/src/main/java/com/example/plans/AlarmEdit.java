@@ -1,6 +1,11 @@
 package com.example.plans;
 
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -91,7 +96,7 @@ public class AlarmEdit extends AppCompatActivity {
      *
      * @return "時:分"の文字列
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint("NewApi")
     private String getClockTime() {
         TimePicker centerClock = getCenterClock();
         return Common.getStrTime(centerClock.getHour(), centerClock.getMinute());
@@ -215,7 +220,6 @@ public class AlarmEdit extends AppCompatActivity {
     /**
      * 編集内容を保存する
      */
-    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onPause() {
         super.onPause();
@@ -224,27 +228,86 @@ public class AlarmEdit extends AppCompatActivity {
         CurrentProcessingData.JsonCurrentProcessData currentData = CurrentProcessingData.getJSON(this);
         String strDay = currentData.strDay();
 
+        // 現画面で設定されている最新の時刻を取得
+        String newTime = getClockTime();
+
+        // 現画面で書き換えられた情報を、JsonCalendarDateに反映
+        updateJsonCalendarDate(strDay, currentData.getStrTime(), newTime);
+
+        // アラームの追加
+        setAlarmAndNotification(strDay, newTime);
+
+        // 現行処理管理用の JSON に時刻、曜日を保存（メモ編集画面に遷移する場合に使用する）
+        currentData.setTime(this, newTime);
+
+        // TODO 曜日の設定
+//        CurrentProcessingData.setDayOfWeek(this, 0);
+    }
+
+    /**
+     * JsonCalendarDateを更新
+     * （JsonCalendarDateは、ローカルファイルのJSON）
+     *
+     * @param strDay     処理対象の日付
+     * @param beforeTime 書き換えを行う対象となる時刻
+     * @param afterTime  上書きに使用する時刻
+     */
+    private void updateJsonCalendarDate(String strDay, String beforeTime, String afterTime) {
         // カレンダーに紐づく全データ（JSON）の取得
         JsonCalendarManager.JsonCalendarDate calendarDate = JsonCalendarManager.getJson(this);
 
         // カレンダーに紐づく情報の中から、現画面表示時に設定されていた時刻情報を削除
         // 削除した時刻に紐づいていた ValuesWithTime を取得
-        JsonCalendarManager.ValuesWithTime valuesWithTime = calendarDate.deleteTime(this, strDay, currentData.getStrTime());
+        JsonCalendarManager.ValuesWithTime valuesWithTime = calendarDate.deleteTime(this, strDay, beforeTime);
 
         // 画面上のチェックボックスの状態を JSON に反映
         valuesWithTime.flgAlarm = getCheckAlarmSound().isChecked();
         valuesWithTime.flgNotice = getCheckNotification().isChecked();
 
-        // 現画面で設定されている最新の時刻を取得
-        String newTime = getClockTime();
-
         // 現画面の情報を使用して、JsonCalendarManagerに各値を保存
-        calendarDate.setValuesWithTime(this, strDay, newTime, valuesWithTime);
+        calendarDate.setValuesWithTime(this, strDay, afterTime, valuesWithTime);
+    }
 
-        // 現行処理管理用の JSON に時刻、曜日を保存
-        currentData.setTime(this, newTime);
+    /**
+     * アラームの設定
+     *
+     * @param strDay  年月日
+     * @param strTime 時刻
+     */
+    @SuppressLint({"NewApi", "UnspecifiedImmutableFlag"})
+    private void setAlarmAndNotification(String strDay, String strTime) {
+        // アラームフラグがONの場合にのみ、処理する
+        if (getCheckAlarmSound().isChecked() || getCheckNotification().isChecked()) {
+            // アラームとしての処理を生成
+            PendingIntent operation = PendingIntent.getBroadcast(
+                    getApplicationContext(),
+                    Common.getRequestCode(strDay, strTime),
+                    new Intent(getApplicationContext(), FireAnAlarm.class),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+            // アラームの追加
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        // TODO 曜日の設定
-//        CurrentProcessingData.setDayOfWeek(this, 0);
+
+            // todo テスト
+
+            // 時間をセットする
+            Calendar calendar = Calendar.getInstance();
+            // Calendarを使って現在の時間をミリ秒で取得
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            // 5秒後に設定
+            calendar.add(Calendar.SECOND, 5);
+
+
+            // 時間設定の取得
+            // todo Common.getTimeInMillis() 後日修正
+//            long timeInMillis = Common.getTimeInMillis(strDay, strTime);
+            Toast.makeText(getApplicationContext(),
+                    "差(long型）>>>" + (calendar.getTimeInMillis() - Calendar.getInstance().getTimeInMillis()),
+                    Toast.LENGTH_SHORT).show();
+
+            // 時間指定で処理を実行
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), operation);
+        }
     }
 }
