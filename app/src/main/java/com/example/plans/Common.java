@@ -189,11 +189,11 @@ public class Common {
      * @return calendar.getTimeInMillis()の結果
      */
     public static long getTimeInMillis(String strDay, String strTime) {
-        // todo バグっている 後日修正
         Calendar calendar = Calendar.getInstance();
         calendar.set(
                 getYearInDate(strDay),
-                getMonthInDate(strDay),
+                // Calendarでは、月は本来の数値-1
+                getMonthInDate(strDay) - 1,
                 getDayInDate(strDay),
                 getHourInTime(strTime),
                 getMinutesInTime(strTime),

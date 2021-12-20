@@ -49,6 +49,7 @@ public class JsonCalendarManager {
         /**
          * 引数の日付・時刻に紐づく情報の取得
          */
+        @JsonIgnore
         public ValuesWithTime getValuesWithTime(String strDay, String strTime) {
             if (!Common.isEmptyOrNull(strDay) && !Common.isEmptyOrNull(strTime)) {
                 ValuesWithDay valuesWithDay = dayAndValues.get(strDay);
@@ -92,6 +93,7 @@ public class JsonCalendarManager {
          * @param strTime        処理対象の時刻
          * @param valuesWithTime 格納したい値
          */
+        @JsonIgnore
         public void setValuesWithTime(Context context, String strDay, String strTime, ValuesWithTime valuesWithTime) {
             // 時刻が設定されていない場合は、時刻は"0"で設定
             if (Common.isEmptyOrNull(strTime)) {
@@ -163,10 +165,6 @@ public class JsonCalendarManager {
          * アラームON/OFF のフラグ
          */
         public boolean flgAlarm = true;
-        /**
-         * 通知ON/OFF のフラグ
-         */
-        public boolean flgNotice = true;
         /**
          * リピートON/OFF のフラグ
          */
